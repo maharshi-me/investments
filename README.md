@@ -1,16 +1,20 @@
+# Work In Progress. This is still under development
+
 # Investments
 
 This is a WEB UI for tracking CAMS and KFintech mutual fund investments
 
-## Available Scripts
+## How to use
 
-In the project directory, you can run:
+- Install the dependencies <br>
+Run `npm install` in project path
 
-### `npm start`
-
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
+- Add PDF file in `public` folder
+- Create `.env ` file in project path and add these two variables
+  ```
+  REACT_APP_PDF_PATH='filename.pdf'
+  REACT_APP_PDF_PASSWORD='passwordForPDF'
+  ```
+- In the project directory, you can run:<br>
+  `npm start`
+- Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
