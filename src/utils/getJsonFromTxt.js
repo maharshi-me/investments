@@ -1,10 +1,11 @@
 const getJsonFromTxt = t => {
-  const lines = t.split('\r\n')
+  const lines = t.replace('\r\n', '\n').split('\n')
 
   const obj = {
     meta: getMeta(lines),
     holder: getHolder(lines),
     summary: getSummary(lines)
+    // transactions: getTransactions(lines)
   }
 
   return obj
@@ -15,6 +16,19 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const strToCur = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 100) / 100
 
 const getIndexByText = (lines, text) => lines.indexOf(lines.filter(line => line.substr(0, text.length) === text)[0])
+
+const getTransactions = lines => {
+  const filteredLines = lines.filter(line => 
+    line !== lines[0] && 
+    line !== lines[1] && 
+    line !== lines[2] &&
+    line.substr(0, 4) !== 'Page' &&
+    line.substr(0, 16) !== 'Date Transaction' &&
+    line.substr(0, 11) !== '(INR) (INR)'
+  )
+
+  return filteredLines
+}
 
 const getSummary = lines => {
   const PortfolioSummaryTotalRowIndex = getIndexByText(lines, 'Total')
@@ -44,7 +58,7 @@ const getHolder = lines => {
     name: lines[5],
     email: lines[EmailIdRowIndex].split(' ')[2],
     mobile: lines[mobileNumberRowIndex].split(' ')[1],
-    address: lines.slice(EmailIdRowIndex + 2, mobileNumberRowIndex).join('\r\n')
+    address: lines.slice(EmailIdRowIndex + 2, mobileNumberRowIndex).join('\n')
   }
 }
 
