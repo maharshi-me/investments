@@ -5,12 +5,13 @@ import Paper from '@mui/material/Paper'
 import {
   Bar,
   BarChart,
-  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
-  XAxis,
-  YAxis
+  XAxis
 } from 'recharts'
 import { Button, Grid } from '@mui/material'
 
@@ -55,10 +56,22 @@ const getYearlyBarChart = transactions => {
 }
 
 export default function Dashboard({ cas }) {
+  const COLORS = [
+    '#d21919',
+    '#1976d2',
+    '#3ed219',
+    '#b619d2',
+    '#ccd219',
+    '#19d2d2',
+    '#d27919',
+    '#6919d2'
+  ]
+  
   const navigate = useNavigate()
 
-  let { transactions = [] } = cas || {}
+  let { transactions = [], summary: { mutualFunds = [] } = {} } = cas || {}
 
+  mutualFunds = mutualFunds.filter(mf => mf.currentValue > 0)
   const yearlyBarChart = getYearlyBarChart(transactions)
 
   return (
@@ -80,15 +93,34 @@ export default function Dashboard({ cas }) {
                 bottom: 0,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="Year" scale="point" padding={{ left: 40, right: 40 }} />
-              <YAxis />
               <Tooltip />
-              <Bar dataKey="Amount" fill="#1976d2" maxBarSize={30} />
+              <Bar dataKey="Amount" fill="#1976d2" maxBarSize={40} />
               <ReferenceLine y={0} stroke="#000" />
             </BarChart>
           </ResponsiveContainer>
           <Button color="primary" size="small" variant="text" onClick={() => navigate('transactions')}>See full transactions</Button>
+        </Paper>
+      </Grid>
+      <Grid item xs={12} md={6} lg={4}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary">
+            Allocation
+          </Typography>
+          <Typography variant="caption" gutterBottom>
+            By Fund house
+          </Typography>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={mutualFunds} dataKey="currentValue" nameKey="fundHouse" cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={3}>
+                {mutualFunds.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+          <Button color="primary" size="small" variant="text">See Detailed breakdown</Button>
         </Paper>
       </Grid>
     </Grid>
