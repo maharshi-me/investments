@@ -1,11 +1,23 @@
-import CAS from './utils/CAS';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+
+import CAS from './utils/CAS'
+import Dashboard from "./pages/Dashboard"
+import Layout from "./pages/Layout"
+import Transactions from './pages/Transactions'
 
 function App() {
   const cas = CAS()
 
   return (
-    <>{JSON.stringify(cas)}</>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard cas={cas} />} />
+          <Route path="transactions" element={<Transactions cas={cas} />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 
-export default App;
+export default App

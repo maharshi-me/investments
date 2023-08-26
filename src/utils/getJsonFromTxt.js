@@ -1,11 +1,13 @@
+import { isLineStartsWith } from "./helperFunctions"
+
 const getJsonFromTxt = t => {
-  const lines = t.replace('\r\n', '\n').split('\n')
+  const lines = t.split('\n')
 
   const obj = {
     meta: getMeta(lines),
     holder: getHolder(lines),
-    summary: getSummary(lines)
-    // transactions: getTransactions(lines)
+    summary: getSummary(lines),
+    transactions: getTransactions(lines)
   }
 
   return obj
@@ -14,25 +16,99 @@ const getJsonFromTxt = t => {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 const strToCur = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 100) / 100
+const strToPrice = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 10000) / 10000
+const strToUnits = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 1000) / 1000
 
-const getIndexByText = (lines, text) => lines.indexOf(lines.filter(line => line.substr(0, text.length) === text)[0])
+const getIndexByStartingText = (lines, text) => lines.indexOf(lines.filter(line => isLineStartsWith(line, text))[0])
 
 const getTransactions = lines => {
-  const filteredLines = lines.filter(line => 
-    line !== lines[0] && 
-    line !== lines[1] && 
-    line !== lines[2] &&
-    line.substr(0, 4) !== 'Page' &&
-    line.substr(0, 16) !== 'Date Transaction' &&
-    line.substr(0, 11) !== '(INR) (INR)'
-  )
+  const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
+
+  let filteredLines = lines.filter((_line, index) => index > PortfolioSummaryTotalRowIndex + 1)
+
+  filteredLines.forEach((line, index) => {
+    if (line.includes("*** Stamp Duty ***")) {
+      let stampDuty = strToPrice(line.split(" ")[1])
+      let amount = strToPrice(filteredLines[index - 1].split(" ")[1])
+
+      filteredLines[index - 1] = filteredLines[index - 1].split(" ")
+      filteredLines[index - 1][1] = (amount + stampDuty).toFixed(2)
+      filteredLines[index - 1] = filteredLines[index - 1].join(" ")
+    }
+  })
+
+  filteredLines = filteredLines.filter(line => !line.includes("***"))
+
+  filteredLines.forEach((line, index) => {
+    if (isLineStartsWith(line, 'Folio No:')) {
+      filteredLines[index - 1] += " " + line
+    }
+  })
+
+  filteredLines = filteredLines.filter(line => !isLineStartsWith(line, 'Folio No:'))
+
+  let mfNameFull, mfName, folio
+
+  filteredLines.forEach((line, index) => {
+    if (line.includes('Folio No:')) {
+      [ mfNameFull, folio ] = line.split(" Folio No: ")
+      mfName = mfNameFull.split('Direct').join('').split('DIRECT').join('').split('Growth').join('').split('GROWTH').join('')
+        .split('Plan').join('').split('PLAN').join('').split('Option').join('').split('OPTION').join('').trim()
+
+      while (mfName.charAt( mfName.length-1 ) === "-" || mfName.charAt( mfName.length-1 ) === " ") {
+        mfName = mfName.slice(0, -1)
+      }
+    }
+    else {
+      let amount, units
+      let amountStr = line.split(" ")[1]
+      let unitsStr = line.split(" ")[3]
+      let type = 'Investment'
+
+      if (amountStr[0] === '(') {
+        amount = strToCur(amountStr.slice(1, -1))
+        type = "Redemption"
+      }
+      else {
+        amount = strToCur(amountStr)
+      }
+
+      if (unitsStr[0] === '(') {
+        units = strToUnits(unitsStr.slice(1, -1))
+      }
+      else {
+        units = strToUnits(unitsStr)
+      }
+
+      folio = folio.split("/")[0].trim()
+
+      filteredLines[index] = {
+        mfNameFull,
+        mfName,
+        folio,
+        date: new Date(
+          Number(line.split(" ")[0].split("-")[2]),
+          MONTHS.indexOf(line.split(" ")[0].split("-")[1]),
+          Number(line.split(" ")[0].split("-")[0])
+        ),
+        amount,
+        type,
+        price: strToPrice(line.split(" ")[2]),
+        units,
+        content: line,
+        key: index
+      }
+    }
+  })
+
+  filteredLines = filteredLines.filter(line => typeof(line) !== 'string')
 
   return filteredLines
 }
 
 const getSummary = lines => {
-  const PortfolioSummaryTotalRowIndex = getIndexByText(lines, 'Total')
-  const PortfolioSummaryRowIndex = getIndexByText(lines, 'PORTFOLIO SUMMARY')
+  const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
+  const PortfolioSummaryRowIndex = getIndexByStartingText(lines, 'PORTFOLIO SUMMARY')
 
   return {
     invested: strToCur(lines[PortfolioSummaryTotalRowIndex].split(' ')[1]),
@@ -40,6 +116,7 @@ const getSummary = lines => {
     mutualFunds: lines.slice(PortfolioSummaryRowIndex + 1, PortfolioSummaryTotalRowIndex).map(
       mf => {
         const mf_s = mf.trim().split(' ')
+
         return {
           fundHouse: mf_s.slice(0, mf_s.length - 2).join(' '),
           invested: strToCur(mf_s[mf_s.length - 2]),
@@ -51,11 +128,11 @@ const getSummary = lines => {
 }
 
 const getHolder = lines => {
-  const mobileNumberRowIndex = getIndexByText(lines, 'Mobile')
-  const EmailIdRowIndex = getIndexByText(lines, 'Email Id')
+  const mobileNumberRowIndex = getIndexByStartingText(lines, 'Mobile')
+  const EmailIdRowIndex = getIndexByStartingText(lines, 'Email Id')
 
   return {
-    name: lines[5],
+    name: lines[4],
     email: lines[EmailIdRowIndex].split(' ')[2],
     mobile: lines[mobileNumberRowIndex].split(' ')[1],
     address: lines.slice(EmailIdRowIndex + 2, mobileNumberRowIndex).join('\n')
@@ -68,7 +145,6 @@ const getMeta = lines => {
   const to = lines[2].split(' ')[2].split('-')
 
   return {
-    pageCount: lines.filter(line => line.substr(0, 4) === "Page").length,
     exportedAt: new Date(
       Number('20' + timestamp.substr(4,2)),
       Number(timestamp.substr(2,2) - 1),
