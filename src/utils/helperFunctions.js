@@ -1,3 +1,5 @@
+import { getColor } from "../constants"
+
 export const isLineStartsWith = (line, text) => line.substr(0, text.length) === text
 export const isLineEndsWith = (line, text) => line.substr(-text.length) === text
 export const isLineIncludes = (line, text) => line.includes(text)
@@ -76,6 +78,7 @@ export const getPortfolio = transactions => {
     })
     o.currentInvested = Math.round(invested / 10000000)
     o.currentUnits = units / 1000
+    o.color = getColor(o.mfName)
   })
 
   out.sort(byTotalCost)

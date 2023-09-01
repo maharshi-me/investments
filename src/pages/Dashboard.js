@@ -14,7 +14,7 @@ import {
 
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { getAssetType } from '../constants'
+import { getAssetType, getAssetColor } from '../constants'
 import { getPortfolio, byDateAsc } from '../utils/helperFunctions'
 
 
@@ -30,7 +30,8 @@ const getTypePortfolio = portfolio => {
     else {
       out.push({
         type: getAssetType(p.mfName),
-        currentInvested: p.currentInvested
+        currentInvested: p.currentInvested,
+        color: getAssetColor(p.mfName)
       })
     }
   })
@@ -129,7 +130,7 @@ export default function Dashboard({ cas }) {
           </ResponsiveContainer>
         </Paper>
       </Grid>
-      <Grid item xs={12} md={6} lg={4}>
+      <Grid item xs={12} md={6} lg={8}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" color="primary">
             Allocation
@@ -140,30 +141,30 @@ export default function Dashboard({ cas }) {
               <Tab label="Funds" {...a11yProps(1)} />
             </Tabs>
           </Box>
-          {(value === 0) &&
-          <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie data={portfolioByType} dataKey="currentInvested" nameKey="type" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
-              {portfolioByType.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-          </ResponsiveContainer>
-          }
-          {(value === 1) &&
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie data={portfolio} dataKey="currentInvested" nameKey="mfName" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
-                {portfolio.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
+              {(value === 0) &&
+              <>
+                <Pie data={portfolioByType} dataKey="currentInvested" nameKey="type" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
+                  {portfolioByType.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </>
+              }
+              {(value === 1) &&
+                <>
+                  <Pie data={portfolio} dataKey="currentInvested" nameKey="mfName" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
+                    {portfolio.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </>
+              }
             </PieChart>
           </ResponsiveContainer>
-          }
         </Paper>
       </Grid>
     </Grid>
