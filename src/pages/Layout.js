@@ -134,7 +134,7 @@ export default function Layout() {
               </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItemButton>
-            <ListItemButton>
+            <ListItemButton onClick={() => navigate('portfolio')}>
               <ListItemIcon>
                 <AccountBalanceWallet />
               </ListItemIcon>

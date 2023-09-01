@@ -1,7 +1,5 @@
-import { useNavigate } from 'react-router-dom'
-
-import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
+import { useState } from 'react'
+import { Grid, Box, Tabs, Tab } from '@mui/material'
 import {
   Bar,
   BarChart,
@@ -13,16 +11,31 @@ import {
   Tooltip,
   XAxis
 } from 'recharts'
-import { Button, Grid } from '@mui/material'
+
+import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
+import { getAssetType } from '../constants'
+import { getPortfolio, byDateAsc } from '../utils/helperFunctions'
 
 
-function byDateAsc(a, b) {
-  var keyA = new Date(a.date),
-    keyB = new Date(b.date)
-  if (keyA < keyB) return -1
-  if (keyA > keyB) return 1
+const getTypePortfolio = portfolio => {
+  let out = []
 
-  return 0
+  portfolio.forEach(p => {
+    const i = out.findIndex(o => o.type === getAssetType(p.mfName))
+
+    if (i >= 0) {
+      out[i].currentInvested += p.currentInvested
+    }
+    else {
+      out.push({
+        type: getAssetType(p.mfName),
+        currentInvested: p.currentInvested
+      })
+    }
+  })
+
+  return out
 }
 
 const getYearlyBarChart = transactions => {
@@ -55,24 +68,39 @@ const getYearlyBarChart = transactions => {
   return data
 }
 
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
+
 export default function Dashboard({ cas }) {
+  const [ value, setValue ] = useState(0)
+
   const COLORS = [
     '#d21919',
     '#1976d2',
-    '#3ed219',
     '#b619d2',
     '#ccd219',
     '#19d2d2',
     '#d27919',
-    '#6919d2'
+    '#6919d2',
+    '#691919',
+    '#3ed219',
   ]
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue)
+  }
   
-  const navigate = useNavigate()
+  let { transactions = [] } = cas || {}
 
-  let { transactions = [], summary: { mutualFunds = [] } = {} } = cas || {}
-
-  mutualFunds = mutualFunds.filter(mf => mf.currentValue > 0)
   const yearlyBarChart = getYearlyBarChart(transactions)
+
+  const portfolio = getPortfolio(transactions)
+
+  const portfolioByType = getTypePortfolio(portfolio)
 
   return (
     <Grid container spacing={2}>
@@ -95,11 +123,10 @@ export default function Dashboard({ cas }) {
             >
               <XAxis dataKey="Year" scale="point" padding={{ left: 40, right: 40 }} />
               <Tooltip />
-              <Bar dataKey="Amount" fill="#1976d2" maxBarSize={40} />
+              <Bar dataKey="Amount" fill="#1976d2" maxBarSize={50} />
               <ReferenceLine y={0} stroke="#000" />
             </BarChart>
           </ResponsiveContainer>
-          <Button color="primary" size="small" variant="text" onClick={() => navigate('transactions')}>See full transactions</Button>
         </Paper>
       </Grid>
       <Grid item xs={12} md={6} lg={4}>
@@ -107,20 +134,36 @@ export default function Dashboard({ cas }) {
           <Typography variant="h6" color="primary">
             Allocation
           </Typography>
-          <Typography variant="caption" gutterBottom>
-            By Fund house
-          </Typography>
+          <Box sx={{ borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              <Tab label="Type" {...a11yProps(0)} />
+              <Tab label="Funds" {...a11yProps(1)} />
+            </Tabs>
+          </Box>
+          {(value === 0) &&
+          <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie data={portfolioByType} dataKey="currentInvested" nameKey="type" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
+              {portfolioByType.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+          </ResponsiveContainer>
+          }
+          {(value === 1) &&
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Pie data={mutualFunds} dataKey="currentValue" nameKey="fundHouse" cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={3}>
-                {mutualFunds.map((entry, index) => (
+              <Pie data={portfolio} dataKey="currentInvested" nameKey="mfName" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
+                {portfolio.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
-          <Button color="primary" size="small" variant="text">See Detailed breakdown</Button>
+          }
         </Paper>
       </Grid>
     </Grid>

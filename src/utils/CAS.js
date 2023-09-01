@@ -4,7 +4,8 @@ import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
 import getJsonFromTxt from './getJsonFromTxt'
 import {
   isLineStartsWith,
-  isLineEndsWith
+  getIndexByStartingText,
+  isLineIncludes
 } from './helperFunctions'
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.js`
@@ -90,21 +91,36 @@ const filterText = text => {
 
   filteredLines = filteredLines.filter(line => !isLineStartsWith(line, "***"))
 
-  filteredLines.forEach((line, index) => {
-    if (isLineEndsWith(line, "Registrar :")) {
-      filteredLines[index] += " " + filteredLines[index + 1]
-    }
-  })
+  let ci = getIndexByStartingText(filteredLines, 'Total') + 2
+  let start = false
+  let started = true
+  let si
 
-  filteredLines = filteredLines.filter((line, index) => {
-    if (filteredLines[index - 1]) {
-      if (line === filteredLines[index - 1].substr(-line.length)) {
-        return false
+  while (ci <= filteredLines.length - 1) {
+    if (start) {
+      if (isLineStartsWith(filteredLines[ci], 'Folio No:') && !isLineIncludes(filteredLines[ci + 1], 'Folio No:')) {
+        start = false
+      }
+      else {
+        filteredLines[si] = filteredLines[si] + " " + filteredLines[ci]
+        filteredLines[ci] = ""
       }
     }
+    else {
+      if (isLineStartsWith(filteredLines[ci], 'Closing') || started) {
+        started = true
+        if (isLineIncludes(filteredLines[ci], '-')) {
+          start = true
+          si = ci
+          started = false
+        }
+      }
+    }
+    ci++
+  }
 
-    return true
-  })
+  filteredLines = filteredLines.filter(line => isText(line))
+  
 
   filteredLines.forEach((line, index) => {
     if (line.includes("Registrar :")) {
@@ -160,7 +176,7 @@ const filterText = text => {
     }
   }
   
-  newFilteredLines = newFilteredLines.filter(line => !line.includes('Market Value on'))
+  newFilteredLines = excludeLineThatIncludes(newFilteredLines, 'Market Value on')
 
   newFilteredLines = newFilteredLines.filter((_line, index) => {
     if (newFilteredLines[index - 1] && newFilteredLines[index + 2]) {
@@ -174,7 +190,7 @@ const filterText = text => {
     return true
   })
 
-  newFilteredLines = newFilteredLines.filter(line => !line.includes('Closing Unit Balance'))
+  newFilteredLines = excludeLineThatIncludes(newFilteredLines, 'Closing Unit Balance')
 
   return newFilteredLines.join('\n')
 }
@@ -210,5 +226,7 @@ async function extractTextFromPDF(pdfPath) {
 }
 
 const isText = str => str != '' && str != ' '
+
+const excludeLineThatIncludes = (lines, text) => lines.filter(line => !line.includes(text))
 
 export default CAS
