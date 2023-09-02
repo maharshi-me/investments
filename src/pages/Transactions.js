@@ -8,16 +8,9 @@ import {
   Typography
 } from '@mui/material'
 
-function byDateDesc(a, b) {
-  var keyA = new Date(a.date),
-    keyB = new Date(b.date)
-  if (keyA < keyB) return 1
-  if (keyA > keyB) return -1
+import byDateDesc from 'utils/functions/byDateDesc'
 
-  return 0
-}
-
-export default function Transactions({ cas }) {
+const Transactions = ({ cas }) => {
   let { transactions = [] } = cas || {}
 
   transactions.sort(byDateDesc)
@@ -56,3 +49,5 @@ export default function Transactions({ cas }) {
     </Paper>
   )
 }
+
+export default Transactions

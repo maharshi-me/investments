@@ -8,9 +8,9 @@ import {
   Tooltip
 } from 'recharts'
 
-import { CustomTooltip } from 'utils/helperFunctions'
+import CustomTooltipContent from 'components/CustomTooltipContent'
 
-export default function CustomPieChart({ data, dataKey, nameKey }) {
+const CustomPieChart = ({ data, dataKey, nameKey }) => {
   const [ dataItems, setDataItems ] = useState([])
   const [ hiddenItems, setHiddenItems ] = useState([])
 
@@ -44,7 +44,7 @@ export default function CustomPieChart({ data, dataKey, nameKey }) {
                 <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip content={<CustomTooltip nameKey={nameKey}/>} />
+            <Tooltip content={<CustomTooltipContent nameKey={nameKey}/>} />
           </PieChart>
         </ResponsiveContainer>
       </Grid>
@@ -87,3 +87,5 @@ export default function CustomPieChart({ data, dataKey, nameKey }) {
     </Grid>
   )
 }
+
+export default CustomPieChart

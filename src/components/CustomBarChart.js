@@ -7,9 +7,9 @@ import {
   XAxis
 } from 'recharts'
 
-import { CustomTooltip } from 'utils/helperFunctions'
+import CustomTooltipContent from 'components/CustomTooltipContent'
 
-export default function CustomBarChart({ data, dataKey, nameKey }) {
+const CustomBarChart = ({ data, dataKey, nameKey }) => {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -22,10 +22,12 @@ export default function CustomBarChart({ data, dataKey, nameKey }) {
         }}
       >
         <XAxis dataKey={nameKey} scale="point" padding={{ left: 40, right: 40 }} />
-        <Tooltip content={<CustomTooltip nameKey={nameKey} hideLabel />}/>
+        <Tooltip content={<CustomTooltipContent nameKey={nameKey} hideLabel />}/>
         <Bar dataKey={dataKey} fill="#1976d2" maxBarSize={50} />
         <ReferenceLine y={0} stroke="#000" />
       </BarChart>
     </ResponsiveContainer>
   )
 }
+
+export default CustomBarChart

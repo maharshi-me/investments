@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Grid, Box, Tabs, Tab, Paper, Typography } from '@mui/material'
 
+import byDateAsc from 'utils/functions/byDateAsc'
 import CustomBarChart from 'components/CustomBarChart'
 import CustomPieChart from 'components/CustomPieChart'
-import { byDateAsc, getPortfolio, getTypePortfolio } from 'utils/helperFunctions'
+import getPortfolio from 'utils/functions/getPortfolio'
+import getTypePortfolio from 'utils/functions/getTypePortfolio'
 
 const getYearlyBarChart = transactions => {
   let ts = transactions.slice()
@@ -42,7 +44,7 @@ function a11yProps(index) {
   };
 }
 
-export default function Dashboard({ cas }) {
+const Dashboard = ({ cas }) => {
   const [ value, setValue ] = useState(0)
 
   const handleChange = (_event, newValue) => setValue(newValue)
@@ -84,3 +86,5 @@ export default function Dashboard({ cas }) {
     </Grid>
   )
 }
+
+export default Dashboard

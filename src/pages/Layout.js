@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
 
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
 import BarChartIcon from '@mui/icons-material/BarChart'
@@ -22,7 +23,6 @@ import Paid from '@mui/icons-material/Paid'
 import ReceiptLong from '@mui/icons-material/ReceiptLong'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
 
 const drawerWidth = 240
 
@@ -73,7 +73,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme()
 
-export default function Layout() {
+const Layout = () => {
   const [ open, setOpen ] = useState(true)
   const toggleDrawer = () => {
     setOpen(!open)
@@ -187,3 +187,5 @@ export default function Layout() {
     </ThemeProvider>
   )
 }
+
+export default Layout

@@ -8,9 +8,9 @@ import {
   Typography
 } from '@mui/material'
 
-import { getPortfolio } from 'utils/helperFunctions'
+import getPortfolio from 'utils/functions/getPortfolio'
 
-export default function Portfolio({ cas }) {
+const Portfolio = ({ cas }) => {
   let { transactions = [] } = cas || {}
 
   const portfolio = getPortfolio(transactions)
@@ -43,3 +43,5 @@ export default function Portfolio({ cas }) {
     </Paper>
   )
 }
+
+export default Portfolio
