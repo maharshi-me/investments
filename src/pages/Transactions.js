@@ -1,5 +1,6 @@
 import byDateDesc from 'utils/functions/byDateDesc'
 import DataTable from 'components/DataTable'
+import getRupeesString from 'utils/functions/getRupeesString'
 
 const Transactions = ({ cas }) => {
   let { transactions = [] } = cas || {}
@@ -36,10 +37,10 @@ const Transactions = ({ cas }) => {
     },
     {
       label: "Amount",
-      getData: rowData => `${rowData.type === 'Investment' ? '+' : '-'}${rowData.amount.toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })}`,
+      getData: rowData => `${rowData.type === 'Investment' ? '+' : '-'}${getRupeesString(rowData.amount)}`,
       align: "right",
       sx: rowData => ({ color: rowData.type === 'Investment' ? '#2e7d32' : '#d32f2f' }),
-      getTotalData: data => data.reduce((a, b) => (b.type === 'Investment') ? a + b.amount : a - b.amount, 0).toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })
+      getTotalData: data => getRupeesString(data.reduce((a, b) => (b.type === 'Investment') ? a + b.amount : a - b.amount, 0))
     }
   ]
 

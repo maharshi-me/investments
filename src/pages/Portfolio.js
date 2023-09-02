@@ -1,5 +1,6 @@
 import DataTable from 'components/DataTable'
 import getPortfolio from 'utils/functions/getPortfolio'
+import getRupeesString from 'utils/functions/getRupeesString'
 
 const Portfolio = ({ cas }) => {
   const { transactions = [] } = cas || {}
@@ -29,9 +30,9 @@ const Portfolio = ({ cas }) => {
     },
     {
       label: "Total cost",
-      getData: rowData => rowData.currentInvested ? rowData.currentInvested.toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 }) : '-',
+      getData: rowData => rowData.currentInvested ? getRupeesString(rowData.currentInvested) : '-',
       align: "right",
-      getTotalData: data => data.reduce((a, b) => a + b.currentInvested, 0).toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })
+      getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.currentInvested, 0))
     }
   ]
 
