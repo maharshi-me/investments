@@ -20,6 +20,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import MuiAppBar from '@mui/material/AppBar'
 import MuiDrawer from '@mui/material/Drawer'
 import Paid from '@mui/icons-material/Paid'
+import Person2Icon from '@mui/icons-material/Person2';
 import ReceiptLong from '@mui/icons-material/ReceiptLong'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
@@ -93,6 +94,8 @@ const getHeader = path => {
       return 'Portfolio'
     case 'transactions':
       return 'Transactions'
+    case 'profile':
+      return 'Profile'
     default:
       return ''
   }
@@ -158,6 +161,7 @@ const Layout = () => {
             <MenuItem icon={<DonutLarge />} path="analytics" label="Analytics" />
             <MenuItem icon={<Paid />} path="tax-reports" label="Tax Reports" /> */}
             <MenuItem icon={<ReceiptLong />} path="transactions" label="Transactions" />
+            <MenuItem icon={<Person2Icon />} path="profile" label="Profile" />
           </List>
         </Drawer>
         <Box

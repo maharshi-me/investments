@@ -10,7 +10,8 @@ const Portfolio = ({ cas }) => {
   const columns = [
     {
       label: "Scheme Name",
-      getData: rowData => rowData.mfName
+      getData: rowData => rowData.mfName,
+      getTotalData: () => "Total"
     },
     {
       label: "Avg. Cost / Unit",
@@ -26,7 +27,7 @@ const Portfolio = ({ cas }) => {
       label: "% of Portfolio",
       getData: rowData => rowData.currentUnits ? `${rowData.percentage.toFixed(2)}%` : "-",
       align: "right",
-      getTotalData: () => "Total"
+      getTotalData: data => `${data.reduce((a, b) => a + b.percentage, 0).toFixed(2)}%`
     },
     {
       label: "Total cost",

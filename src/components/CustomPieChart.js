@@ -55,13 +55,19 @@ const CustomPieChart = ({ data, dataKey, nameKey }) => {
               outerRadius={100}
               paddingAngle={0}
             >
-              {filteredData.map(entry => (
-                (hoveredItem === entry[nameKey])
-                  ? <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} fillOpacity="80%" />
-                  : <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
-              ))}
+              {filteredData.map(entry => {
+                if (hoveredItem === entry[nameKey]){
+                  return <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
+                }
+                else if (hoveredItem) {
+                  return <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} fillOpacity="20%" />
+                }
+                else {
+                  return <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
+                }
+              })}
             </Pie>
-            <Tooltip content={<CustomTooltipContent nameKey={nameKey}/>} />
+            <Tooltip content={<CustomTooltipContent nameKey={nameKey}/>} cursor={false} />
           </PieChart>
         </ResponsiveContainer>
       </Grid>

@@ -1,30 +1,42 @@
+import { useState } from 'react'
+
 import {
   Bar,
   BarChart,
+  Cell,
   ReferenceLine,
   ResponsiveContainer,
-  Tooltip,
-  XAxis
+  Tooltip
 } from 'recharts'
 
 import CustomTooltipContent from 'components/CustomTooltipContent'
 
 const CustomBarChart = ({ data, dataKey, nameKey }) => {
+  const [ hoveredItem, setHoveredItem ] = useState(null)
+
+  const onBarEnter = item => setHoveredItem(item[nameKey])
+  const onBarExit = () => setHoveredItem(null)
 
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <BarChart data={data} 
-        margin={{
-          top: 15,
-          right: 0,
-          left: 0,
-          bottom: 0,
-        }}
-      >
-        <XAxis dataKey={nameKey} scale="point" padding={{ left: 40, right: 40 }} />
-        <Tooltip content={<CustomTooltipContent nameKey={nameKey} hideLabel />}/>
-        <Bar dataKey={dataKey} fill="#1976d2" maxBarSize={50} />
-        <ReferenceLine y={0} stroke="#000" />
+      <BarChart data={data} >
+        <Bar
+          onMouseEnter={onBarEnter}
+          onMouseLeave={onBarExit}
+          dataKey={dataKey}
+          maxBarSize={50}
+        >
+          {data.map(entry => {
+            if (hoveredItem === entry[nameKey]){
+              return <Cell key={`cell-${entry[nameKey]}`} fill="#1976d2" fillOpacity="80%"/>
+            }
+            else {
+              return <Cell key={`cell-${entry[nameKey]}`} fill="#1976d2" />
+            }
+          })}
+        </Bar>
+        <ReferenceLine y={0} stroke="grey" />
+        <Tooltip content={<CustomTooltipContent nameKey={nameKey} />} cursor={false}/>
       </BarChart>
     </ResponsiveContainer>
   )

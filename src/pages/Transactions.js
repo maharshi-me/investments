@@ -10,19 +10,25 @@ const Transactions = ({ cas }) => {
   const columns = [
     {
       label: "Date",
-      getData: rowData => rowData.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day:"2-digit"})
+      getData: rowData => rowData.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day:"2-digit"}),
+      getTotalData: () => "Total"
     },
     {
       label: "Scheme Name",
       getData: rowData => rowData.mfName
     },
     {
+      label: "Type",
+      getData: rowData => rowData.type
+    },
+    {
       label: "Folio No.",
       getData: rowData => rowData.folio
     },
     {
-      label: "Type",
-      getData: rowData => rowData.type
+      label: "Units",
+      getData: rowData => rowData.units.toFixed(3),
+      align: "right"
     },
     {
       label: "Price / Unit",
@@ -30,17 +36,11 @@ const Transactions = ({ cas }) => {
       align: "right"
     },
     {
-      label: "Units",
-      getData: rowData => rowData.units.toFixed(3),
-      align: "right",
-      getTotalData: () => "Total"
-    },
-    {
       label: "Amount",
-      getData: rowData => `${rowData.type === 'Investment' ? '+' : '-'}${getRupeesString(rowData.amount)}`,
+      getData: rowData => `${rowData.type === 'Purchase' ? '+' : '-'}${getRupeesString(rowData.amount)}`,
       align: "right",
-      sx: rowData => ({ color: rowData.type === 'Investment' ? '#2e7d32' : '#d32f2f' }),
-      getTotalData: data => getRupeesString(data.reduce((a, b) => (b.type === 'Investment') ? a + b.amount : a - b.amount, 0))
+      sx: rowData => ({ color: rowData.type === 'Purchase' ? '#2e7d32' : '#d32f2f' }),
+      getTotalData: data => getRupeesString(data.reduce((a, b) => (b.type === 'Purchase') ? a + b.amount : a - b.amount, 0))
     }
   ]
 

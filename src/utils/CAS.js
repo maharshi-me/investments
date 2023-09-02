@@ -185,7 +185,7 @@ async function extractTextFromPDF() {
   return text.split('\n').map(line => line.trim()).join('\n')
 }
 
-const isText = str => str != '' && str != ' '
+const isText = str => str !== '' && str !== ' '
 
 const filterLinesWithText = lines => lines.filter(line => isText(line))
 
