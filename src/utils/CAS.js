@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
 
-import getJsonFromTxt from './getJsonFromTxt'
+import getJsonFromTxt from 'utils/getJsonFromTxt'
 import {
   isLineStartsWith,
   getIndexByStartingText,
   isLineIncludes
-} from './helperFunctions'
+} from 'utils/helperFunctions'
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.js`
 

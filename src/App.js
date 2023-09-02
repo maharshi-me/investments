@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 
-import CAS from './utils/CAS'
-import Dashboard from "./pages/Dashboard"
-import Layout from "./pages/Layout"
-import Portfolio from "./pages/Portfolio"
-import Transactions from './pages/Transactions'
+import CAS from 'utils/CAS'
+import Dashboard from "pages/Dashboard"
+import Layout from "pages/Layout"
+import Portfolio from "pages/Portfolio"
+import Transactions from 'pages/Transactions'
 
 function App() {
   const cas = CAS()

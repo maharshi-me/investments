@@ -6,7 +6,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
-import { getPortfolio } from '../utils/helperFunctions'
+import { getPortfolio } from 'utils/helperFunctions'
 
 export default function Portfolio({ cas }) {
   let { transactions = [] } = cas || {}

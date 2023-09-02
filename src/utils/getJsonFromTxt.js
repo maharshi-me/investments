@@ -1,4 +1,4 @@
-import { isLineStartsWith } from "./helperFunctions"
+import { isLineStartsWith } from "utils/helperFunctions"
 
 const getJsonFromTxt = t => {
   const lines = t.split('\n')

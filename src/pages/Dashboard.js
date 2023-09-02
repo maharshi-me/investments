@@ -1,19 +1,11 @@
 import { useState } from 'react'
-import { Grid, Box, Tabs, Tab, Card, CardContent } from '@mui/material'
-import {
-  Bar,
-  BarChart,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis
-} from 'recharts'
+import { Grid, Box, Tabs, Tab } from '@mui/material'
 
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { getPortfolio, byDateAsc, getTypePortfolio } from '../utils/helperFunctions'
-import CustomPieChart from '../components/CustomPieChart'
-import { CustomTooltip } from '../utils/helperFunctions'
+import { getPortfolio, byDateAsc, getTypePortfolio } from 'utils/helperFunctions'
+import CustomPieChart from 'components/CustomPieChart'
+import CustomBarChart from 'components/CustomBarChart'
 
 const getYearlyBarChart = transactions => {
   let ts = transactions.slice()
@@ -59,8 +51,6 @@ export default function Dashboard({ cas }) {
   
   let { transactions = [] } = cas || {}
 
-  const yearlyBarChart = getYearlyBarChart(transactions)
-
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} md={6} lg={4}>
@@ -71,21 +61,7 @@ export default function Dashboard({ cas }) {
           <Typography variant="caption" gutterBottom>
             Net Amount invested anually
           </Typography>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={yearlyBarChart} 
-              margin={{
-                top: 15,
-                right: 0,
-                left: 0,
-                bottom: 0,
-              }}
-            >
-              <XAxis dataKey="Year" scale="point" padding={{ left: 40, right: 40 }} />
-              <Tooltip content={<CustomTooltip nameKey="Year" hideLabel />}/>
-              <Bar dataKey="Amount" fill="#1976d2" maxBarSize={50} />
-              <ReferenceLine y={0} stroke="#000" />
-            </BarChart>
-          </ResponsiveContainer>
+          <CustomBarChart data={getYearlyBarChart(transactions)} dataKey="Amount" nameKey="Year" />
         </Paper>
       </Grid>
       <Grid item xs={12} md={6} lg={8}>

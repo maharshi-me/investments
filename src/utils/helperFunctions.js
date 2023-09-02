@@ -1,4 +1,4 @@
-import { getColor, getAssetColor, getAssetType } from "../constants"
+import { getColor, getAssetColor, getAssetType } from "constants"
 import { Card } from '@mui/material'
 
 export const isLineStartsWith = (line, text) => line.substr(0, text.length) === text
