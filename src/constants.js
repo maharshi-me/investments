@@ -20,19 +20,19 @@ const MUTUAL_FUNDS = Object.freeze({
     color: "#795548"
   },
   "NIPPON INDIA LIQUID FUND": {
-    type: "Debt",
+    type: "Liquid",
     color: "#9c27b0"
   },
   "Axis Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: "#ffeb3b"
   },
   "PGIM India Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: "#607d8b"
   },
   "ICICI Prudential Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: "#e81e63"
   },
   "ICICI Prudential Banking and PSU Debt Fund": {
@@ -40,26 +40,27 @@ const MUTUAL_FUNDS = Object.freeze({
     color: "#e8fe03"
   },
   "SBI Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: "#607d8b"
   },
   "HDFC Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: '#607d8b'
   },
   "UTI Liquid Cash": {
-    type: "Debt",
+    type: "Liquid",
     color: "#607d8b"
   },
   "Aditya Birla Sun Life Liquid Fund": {
-    type: "Debt",
+    type: "Liquid",
     color: "#9c27b0"
   }
 })
 
 const ASSET_TYPE_COLORS = Object.freeze({
   Equity: '#e81e63',
-  Debt: '#00bcd4'
+  Debt: '#e8fe03',
+  Liquid: '#00bcd4'
 })
 
 export const getAssetType = mfName => MUTUAL_FUNDS[mfName].type

@@ -1,11 +1,8 @@
 import { useState } from 'react'
-import { Grid, Box, Tabs, Tab } from '@mui/material'
+import { Grid, Box, Tabs, Tab, Card, CardContent } from '@mui/material'
 import {
   Bar,
   BarChart,
-  Cell,
-  Pie,
-  PieChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -14,30 +11,9 @@ import {
 
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
-import { getAssetType, getAssetColor } from '../constants'
-import { getPortfolio, byDateAsc } from '../utils/helperFunctions'
-
-
-const getTypePortfolio = portfolio => {
-  let out = []
-
-  portfolio.forEach(p => {
-    const i = out.findIndex(o => o.type === getAssetType(p.mfName))
-
-    if (i >= 0) {
-      out[i].currentInvested += p.currentInvested
-    }
-    else {
-      out.push({
-        type: getAssetType(p.mfName),
-        currentInvested: p.currentInvested,
-        color: getAssetColor(p.mfName)
-      })
-    }
-  })
-
-  return out
-}
+import { getPortfolio, byDateAsc, getTypePortfolio } from '../utils/helperFunctions'
+import CustomPieChart from '../components/CustomPieChart'
+import { CustomTooltip } from '../utils/helperFunctions'
 
 const getYearlyBarChart = transactions => {
   let ts = transactions.slice()
@@ -79,29 +55,11 @@ function a11yProps(index) {
 export default function Dashboard({ cas }) {
   const [ value, setValue ] = useState(0)
 
-  const COLORS = [
-    '#d21919',
-    '#1976d2',
-    '#b619d2',
-    '#ccd219',
-    '#19d2d2',
-    '#d27919',
-    '#6919d2',
-    '#691919',
-    '#3ed219',
-  ]
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
-  }
+  const handleChange = (_event, newValue) => setValue(newValue)
   
   let { transactions = [] } = cas || {}
 
   const yearlyBarChart = getYearlyBarChart(transactions)
-
-  const portfolio = getPortfolio(transactions)
-
-  const portfolioByType = getTypePortfolio(portfolio)
 
   return (
     <Grid container spacing={2}>
@@ -123,7 +81,7 @@ export default function Dashboard({ cas }) {
               }}
             >
               <XAxis dataKey="Year" scale="point" padding={{ left: 40, right: 40 }} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip nameKey="Year" hideLabel />}/>
               <Bar dataKey="Amount" fill="#1976d2" maxBarSize={50} />
               <ReferenceLine y={0} stroke="#000" />
             </BarChart>
@@ -141,30 +99,12 @@ export default function Dashboard({ cas }) {
               <Tab label="Funds" {...a11yProps(1)} />
             </Tabs>
           </Box>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              {(value === 0) &&
-              <>
-                <Pie data={portfolioByType} dataKey="currentInvested" nameKey="type" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
-                  {portfolioByType.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </>
-              }
-              {(value === 1) &&
-                <>
-                  <Pie data={portfolio} dataKey="currentInvested" nameKey="mfName" cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
-                    {portfolio.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </>
-              }
-            </PieChart>
-          </ResponsiveContainer>
+          {(value === 0) && 
+            <CustomPieChart data={getTypePortfolio(transactions)} dataKey="currentInvested" nameKey="type" />
+          }
+          {(value === 1) && 
+            <CustomPieChart data={getPortfolio(transactions)} dataKey="currentInvested" nameKey="mfName" />
+          }
         </Paper>
       </Grid>
     </Grid>

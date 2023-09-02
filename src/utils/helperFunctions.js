@@ -1,4 +1,5 @@
-import { getColor } from "../constants"
+import { getColor, getAssetColor, getAssetType } from "../constants"
+import { Card } from '@mui/material'
 
 export const isLineStartsWith = (line, text) => line.substr(0, text.length) === text
 export const isLineEndsWith = (line, text) => line.substr(-text.length) === text
@@ -67,6 +68,8 @@ export const getPortfolio = transactions => {
     }
   })
 
+  out = out.filter(o => o.existingFunds.length > 0)
+
   out.forEach(o => {
     let invested = 0
     let units = 0
@@ -86,3 +89,39 @@ export const getPortfolio = transactions => {
   return out
 }
 
+export const getTypePortfolio = transactions => {
+  const portfolio = getPortfolio(transactions)
+  let out = []
+
+  portfolio.forEach(p => {
+    const i = out.findIndex(o => o.type === getAssetType(p.mfName))
+
+    if (i >= 0) {
+      out[i].currentInvested += p.currentInvested
+    }
+    else {
+      out.push({
+        type: getAssetType(p.mfName),
+        currentInvested: p.currentInvested,
+        color: getAssetColor(p.mfName)
+      })
+    }
+  })
+
+  return out
+}
+
+export const CustomTooltip = ({ active, payload, nameKey, hideLabel }) => {
+  if (active && payload && payload.length) {
+    return (
+      <Card raised style={{opacity: '85%'}}>
+        <div style={{margin: 10}}>
+          {!hideLabel && <span>{payload[0].payload[nameKey]} : </span>}
+          <span style={{fontWeight:"bolder"}}>{payload[0].value.toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })}</span>
+        </div>
+      </Card>
+    )
+  }
+
+  return null
+}
