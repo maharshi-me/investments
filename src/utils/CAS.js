@@ -14,14 +14,9 @@ function CAS() {
   const [ cas, setCas ] = useState()
 
   useEffect(() => {
-    extractTextFromPDF({
-      url: process.env.REACT_APP_PDF_PATH,
-      password: process.env.REACT_APP_PDF_PASSWORD
-    })
+    extractTextFromPDF()
       .then(text => {
-        const filteredText = filterText(text)
-        const casJson = getJsonFromTxt(filteredText)
-        setCas(casJson)
+        setCas(getJsonFromTxt(filterText(text)))
       })
 
   }, [])
@@ -32,13 +27,7 @@ function CAS() {
 const filterText = text => {
   const lines = text.split('\n')
 
-  let filteredLines = lines.filter(line => {
-    if (!isText(line)) {
-      return false
-    }
-
-    return true
-  })
+  let filteredLines = filterLinesWithText(lines)
 
   filteredLines = filteredLines.filter(line => 
     !isLineStartsWith(line, 'Page') &&
@@ -47,41 +36,9 @@ const filterText = text => {
     !isLineStartsWith(line, 'PAN:')
   )
 
-  filteredLines = filteredLines.filter((line, index) => {
-    if (index === 0) {
-      return true
-    }
-
-    if (line !== lines[0]) {
-      return true
-    }
-
-    return false
-  })
-
-  filteredLines = filteredLines.filter((line, index) => {
-    if (index === 1) {
-      return true
-    }
-    
-    if (line !== lines[1]) {
-      return true
-    }
-
-    return false
-  })
-
-  filteredLines = filteredLines.filter((line, index) => {
-    if (index === 2) {
-      return true
-    }
-    
-    if (line !== lines[2]) {
-      return true
-    }
-
-    return false
-  })
+  filteredLines = filteredLines.filter((line, index) => (index === 0) || (line !== lines[0]))
+  filteredLines = filteredLines.filter((line, index) => (index === 1) || (line !== lines[1]))
+  filteredLines = filteredLines.filter((line, index) => (index === 2) || (line !== lines[2]))
 
   filteredLines.forEach((line, index) => {
     if (isLineStartsWith(line, '***')) {
@@ -119,8 +76,7 @@ const filterText = text => {
     ci++
   }
 
-  filteredLines = filteredLines.filter(line => isText(line))
-  
+  filteredLines = filterLinesWithText(filteredLines)
 
   filteredLines.forEach((line, index) => {
     if (line.includes("Registrar :")) {
@@ -176,7 +132,7 @@ const filterText = text => {
     }
   }
   
-  newFilteredLines = excludeLineThatIncludes(newFilteredLines, 'Market Value on')
+  newFilteredLines = excludeLinesThatInclude(newFilteredLines, 'Market Value on')
 
   newFilteredLines = newFilteredLines.filter((_line, index) => {
     if (newFilteredLines[index - 1] && newFilteredLines[index + 2]) {
@@ -190,13 +146,16 @@ const filterText = text => {
     return true
   })
 
-  newFilteredLines = excludeLineThatIncludes(newFilteredLines, 'Closing Unit Balance')
+  newFilteredLines = excludeLinesThatInclude(newFilteredLines, 'Closing Unit Balance')
 
   return newFilteredLines.join('\n')
 }
 
-async function extractTextFromPDF(pdfPath) {
-  const loadingTask = getDocument(pdfPath)
+async function extractTextFromPDF() {
+  const loadingTask = getDocument({
+    url: process.env.REACT_APP_PDF_PATH,
+    password: process.env.REACT_APP_PDF_PASSWORD
+  })
   const pdf = await loadingTask.promise
   const numPages = pdf.numPages
   let text = ''
@@ -204,6 +163,7 @@ async function extractTextFromPDF(pdfPath) {
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdf.getPage(pageNum)
     const pageText = await page.getTextContent()
+    
     pageText.items.forEach(item => {
       if (item.hasEOL) {
         if (isText(item.str)) {
@@ -212,12 +172,12 @@ async function extractTextFromPDF(pdfPath) {
         else {
           text += '\n'
         }
-      } else {
+      }
+      else {
         if (isText(item.str)) {
           text += item.str + ' '
         }
       }
-      
     })
     text += '\n'
   }
@@ -227,6 +187,8 @@ async function extractTextFromPDF(pdfPath) {
 
 const isText = str => str != '' && str != ' '
 
-const excludeLineThatIncludes = (lines, text) => lines.filter(line => !line.includes(text))
+const filterLinesWithText = lines => lines.filter(line => isText(line))
+
+const excludeLinesThatInclude = (lines, text) => lines.filter(line => !line.includes(text))
 
 export default CAS

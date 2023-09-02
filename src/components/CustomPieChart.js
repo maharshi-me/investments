@@ -11,10 +11,11 @@ import {
 import CustomTooltipContent from 'components/CustomTooltipContent'
 
 const CustomPieChart = ({ data, dataKey, nameKey }) => {
+  const [ hoveredItem, setHoveredItem ] = useState(null)
   const [ dataItems, setDataItems ] = useState([])
   const [ hiddenItems, setHiddenItems ] = useState([])
 
-  useEffect(() => setDataItems(data), [ data.length ])
+  useEffect(() => setDataItems(data.filter(d => d[dataKey] > 0)), [ data.length ])
 
   const getItemPercentage = useCallback(name => {
     if (hiddenItems.some(hiddenItem => hiddenItem === name)) return null
@@ -34,14 +35,30 @@ const CustomPieChart = ({ data, dataKey, nameKey }) => {
 
   const filteredData = [...dataItems].filter(dataItem => !hiddenItems.some(hiddemItem => hiddemItem === dataItem[nameKey]))
 
+  const onPieEnter = item => setHoveredItem(item[nameKey])
+  const onPieExit = () => setHoveredItem(null)
+
   return (
     <Grid container spacing={0} >
       <Grid item xs={12} md={12} lg={6}>
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
-            <Pie data={filteredData} dataKey={dataKey} nameKey={nameKey} cx="50%" cy="50%" innerRadius={50} outerRadius={100} paddingAngle={0} >
-              {filteredData.map((entry, _index) => (
-                <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
+            <Pie
+              onMouseEnter={onPieEnter}
+              onMouseLeave={onPieExit}
+              data={filteredData}
+              dataKey={dataKey}
+              nameKey={nameKey}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={100}
+              paddingAngle={0}
+            >
+              {filteredData.map(entry => (
+                (hoveredItem === entry[nameKey])
+                  ? <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} fillOpacity="80%" />
+                  : <Cell key={`cell-${entry[nameKey]}`} fill={entry.color} />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltipContent nameKey={nameKey}/>} />

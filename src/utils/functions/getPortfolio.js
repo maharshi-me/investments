@@ -50,8 +50,6 @@ const getPortfolio = transactions => {
     }
   })
 
-  out = out.filter(o => o.existingFunds.length > 0)
-
   out.forEach(o => {
     let invested = 0
     let units = 0
@@ -66,6 +64,7 @@ const getPortfolio = transactions => {
     o.color = getColor(o.mfName)
   })
 
+  out.forEach(o => o.percentage = (o.currentInvested / out.reduce((a, b) => a + b.currentInvested, 0)) * 100)
   out.sort(byTotalCostDesc)
 
   return out

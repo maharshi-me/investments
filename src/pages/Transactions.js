@@ -1,52 +1,54 @@
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography
-} from '@mui/material'
-
 import byDateDesc from 'utils/functions/byDateDesc'
+import DataTable from 'components/DataTable'
 
 const Transactions = ({ cas }) => {
   let { transactions = [] } = cas || {}
 
   transactions.sort(byDateDesc)
 
+  const columns = [
+    {
+      label: "Date",
+      getData: rowData => rowData.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day:"2-digit"})
+    },
+    {
+      label: "Scheme Name",
+      getData: rowData => rowData.mfName
+    },
+    {
+      label: "Folio No.",
+      getData: rowData => rowData.folio
+    },
+    {
+      label: "Type",
+      getData: rowData => rowData.type
+    },
+    {
+      label: "Price / Unit",
+      getData: rowData => rowData.price.toFixed(4),
+      align: "right"
+    },
+    {
+      label: "Units",
+      getData: rowData => rowData.units.toFixed(3),
+      align: "right",
+      getTotalData: () => "Total"
+    },
+    {
+      label: "Amount",
+      getData: rowData => `${rowData.type === 'Investment' ? '+' : '-'}${rowData.amount.toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })}`,
+      align: "right",
+      sx: rowData => ({ color: rowData.type === 'Investment' ? '#2e7d32' : '#d32f2f' }),
+      getTotalData: data => data.reduce((a, b) => (b.type === 'Investment') ? a + b.amount : a - b.amount, 0).toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })
+    }
+  ]
+
   return (
-    <Paper sx={{ p: 3 }}>
-      <Typography component="h2" variant="h6" color="primary" gutterBottom>
-        Transactions
-      </Typography>
-      <Table size="small" aria-label="transactions">
-        <TableHead>
-          <TableRow>
-            <TableCell>Date</TableCell>
-            <TableCell>Scheme Name</TableCell>
-            <TableCell>Folio No.</TableCell>
-            <TableCell>Type</TableCell>
-            <TableCell align="right">Price / Unit</TableCell>
-            <TableCell align="right">Units</TableCell>
-            <TableCell align="right">Amount</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {transactions.map(transaction => 
-            <TableRow key={transaction.key}>
-              <TableCell>{transaction.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day:"2-digit"})}</TableCell>
-              <TableCell>{transaction.mfName}</TableCell>
-              <TableCell>{transaction.folio}</TableCell>
-              <TableCell>{transaction.type}</TableCell>
-              <TableCell align="right">{transaction.price.toFixed(4)}</TableCell>
-              <TableCell align="right">{transaction.units.toFixed(3)}</TableCell>
-              <TableCell align="right" sx={{ color: transaction.type === 'Investment' ? '#2e7d32' : '#d32f2f' }}>{transaction.type === 'Investment' ? '+' : '-'}{transaction.amount.toLocaleString('en-IN', { style: "currency", currency: "INR", maximumFractionDigits: 0 })}</TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </Paper>
+    <DataTable
+      data={transactions}
+      columns={columns}
+      showTotal
+    />
   )
 }
 

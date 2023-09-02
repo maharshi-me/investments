@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Outlet, useNavigate } from "react-router-dom"
+import { Outlet, useNavigate, useLocation } from "react-router-dom"
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
 
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
@@ -70,15 +70,39 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 )
 
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme()
+
+const MenuItem = ({ icon, path, label }) => {
+  const navigate = useNavigate()
+
+  return (
+    <ListItemButton onClick={() => navigate(path)}>
+      <ListItemIcon>
+        {icon}
+      </ListItemIcon>
+      <ListItemText primary={label} />
+    </ListItemButton>
+  )
+}
+
+const getHeader = path => {
+  switch (path) {
+    case '':
+      return 'Dashboard'
+    case 'portfolio':
+      return 'Portfolio'
+    case 'transactions':
+      return 'Transactions'
+    default:
+      return ''
+  }
+}
 
 const Layout = () => {
   const [ open, setOpen ] = useState(true)
-  const toggleDrawer = () => {
-    setOpen(!open)
-  }
-  const navigate = useNavigate()
+
+  const toggleDrawer = () => setOpen(!open)
+  const location = useLocation()
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -109,7 +133,7 @@ const Layout = () => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Investments
+              {getHeader(location.pathname.split('/').join(''))}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -128,42 +152,12 @@ const Layout = () => {
           </Toolbar>
           <Divider />
           <List component="nav">
-            <ListItemButton onClick={() => navigate('')}>
-              <ListItemIcon>
-                <DashboardIcon />
-              </ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-            <ListItemButton onClick={() => navigate('portfolio')}>
-              <ListItemIcon>
-                <AccountBalanceWallet />
-              </ListItemIcon>
-              <ListItemText primary="Portfolio" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <BarChartIcon />
-              </ListItemIcon>
-              <ListItemText primary="Performance" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <DonutLarge />
-              </ListItemIcon>
-              <ListItemText primary="Analytics" />
-            </ListItemButton>
-            <ListItemButton>
-              <ListItemIcon>
-                <Paid />
-              </ListItemIcon>
-              <ListItemText primary="Tax Reports" />
-            </ListItemButton>
-            <ListItemButton onClick={() => navigate('transactions')}>
-              <ListItemIcon>
-                <ReceiptLong />
-              </ListItemIcon>
-              <ListItemText primary="Transactions" />
-            </ListItemButton>
+            <MenuItem icon={<DashboardIcon />} path="" label="Dashboard" />
+            <MenuItem icon={<AccountBalanceWallet />} path="portfolio" label="Portfolio" />
+            {/* <MenuItem icon={<BarChartIcon />} path="performance" label="Performance" />
+            <MenuItem icon={<DonutLarge />} path="analytics" label="Analytics" />
+            <MenuItem icon={<Paid />} path="tax-reports" label="Tax Reports" /> */}
+            <MenuItem icon={<ReceiptLong />} path="transactions" label="Transactions" />
           </List>
         </Drawer>
         <Box
