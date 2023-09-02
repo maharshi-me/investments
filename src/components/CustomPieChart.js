@@ -7,6 +7,7 @@ import {
   ResponsiveContainer,
   Tooltip
 } from 'recharts'
+
 import { CustomTooltip } from 'utils/helperFunctions'
 
 export default function CustomPieChart({ data, dataKey, nameKey }) {

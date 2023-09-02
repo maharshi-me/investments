@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useState } from "react"
 import { Outlet, useNavigate } from "react-router-dom"
 
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
@@ -74,7 +74,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme()
 
 export default function Layout() {
-  const [open, setOpen] = React.useState(true)
+  const [ open, setOpen ] = useState(true)
   const toggleDrawer = () => {
     setOpen(!open)
   }

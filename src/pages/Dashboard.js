@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { Grid, Box, Tabs, Tab } from '@mui/material'
+import { Grid, Box, Tabs, Tab, Paper, Typography } from '@mui/material'
 
-import Paper from '@mui/material/Paper'
-import Typography from '@mui/material/Typography'
-import { getPortfolio, byDateAsc, getTypePortfolio } from 'utils/helperFunctions'
-import CustomPieChart from 'components/CustomPieChart'
 import CustomBarChart from 'components/CustomBarChart'
+import CustomPieChart from 'components/CustomPieChart'
+import { byDateAsc, getPortfolio, getTypePortfolio } from 'utils/helperFunctions'
 
 const getYearlyBarChart = transactions => {
   let ts = transactions.slice()
