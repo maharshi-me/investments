@@ -63,7 +63,7 @@ const getTransactions = lines => {
       let amount, units
       let amountStr = line.split(" ")[1]
       let unitsStr = line.split(" ")[3]
-      let type = 'Purchase'
+      let type = 'Investment'
 
       if (amountStr[0] === '(') {
         amount = strToCur(amountStr.slice(1, -1))

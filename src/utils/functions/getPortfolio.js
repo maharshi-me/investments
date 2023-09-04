@@ -12,7 +12,7 @@ const getPortfolio = transactions => {
     const i = out.findIndex(o => o.mfName === transaction.mfName)
     if (i >= 0) {
       out[i].allTransactions.push(transaction)
-      if (transaction.type === 'Purchase') {
+      if (transaction.type === 'Investment') {
         out[i].existingFunds.push({
           price: transaction.price * 10000,
           units: transaction.units * 1000,

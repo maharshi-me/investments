@@ -28,10 +28,10 @@ const CustomBarChart = ({ data, dataKey, nameKey }) => {
         >
           {data.map(entry => {
             if (hoveredItem === entry[nameKey]){
-              return <Cell key={`cell-${entry[nameKey]}`} fill="#1976d2" fillOpacity="80%"/>
+              return <Cell key={`cell-${entry[nameKey]}`} fill={entry[dataKey] > 0 ? "#1976d2" : "#d32f2f"} fillOpacity="80%"/>
             }
             else {
-              return <Cell key={`cell-${entry[nameKey]}`} fill="#1976d2" />
+              return <Cell key={`cell-${entry[nameKey]}`} fill={entry[dataKey] > 0 ? "#1976d2" : "#d32f2f"} />
             }
           })}
         </Bar>

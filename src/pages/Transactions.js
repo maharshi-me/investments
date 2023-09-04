@@ -37,10 +37,10 @@ const Transactions = ({ cas }) => {
     },
     {
       label: "Amount",
-      getData: rowData => `${rowData.type === 'Purchase' ? '+' : '-'}${getRupeesString(rowData.amount)}`,
+      getData: rowData => `${rowData.type === 'Investment' ? '+' : '-'}${getRupeesString(rowData.amount)}`,
       align: "right",
-      sx: rowData => ({ color: rowData.type === 'Purchase' ? '#2e7d32' : '#d32f2f' }),
-      getTotalData: data => getRupeesString(data.reduce((a, b) => (b.type === 'Purchase') ? a + b.amount : a - b.amount, 0))
+      sx: rowData => ({ color: rowData.type === 'Investment' ? '#2e7d32' : '#d32f2f' }),
+      getTotalData: data => getRupeesString(data.reduce((a, b) => (b.type === 'Investment') ? a + b.amount : a - b.amount, 0))
     }
   ]
 

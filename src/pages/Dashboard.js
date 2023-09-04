@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Grid, Box, Tabs, Tab, Paper, Typography } from '@mui/material'
 
 import byDateAsc from 'utils/functions/byDateAsc'
+import CustomAreaChart from 'components/CustomAreaChart'
 import CustomBarChart from 'components/CustomBarChart'
 import CustomPieChart from 'components/CustomPieChart'
+import getInvestments from 'utils/functions/getInvestments'
 import getPortfolio from 'utils/functions/getPortfolio'
 import getTypePortfolio from 'utils/functions/getTypePortfolio'
 
@@ -26,7 +28,7 @@ const getYearlyBarChart = transactions => {
   ts.forEach(t => {
     const y_index = data.findIndex(d => d.year === t.date.toLocaleDateString("en-IN", { year: 'numeric' }))
 
-    if (t.type === 'Purchase') {
+    if (t.type === 'Investment') {
       data[y_index].amount += t.amount
     }
     else {
@@ -70,7 +72,7 @@ const getMonthlyBarChart = transactions => {
   ts.forEach(t => {
     const m_index = data.findIndex(d => d.month === t.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short"}))
 
-    if (t.type === 'Purchase') {
+    if (t.type === 'Investment') {
       data[m_index].amount += t.amount
     }
     else {
@@ -88,17 +90,85 @@ function a11yProps(index) {
   }
 }
 
+const getMonthInvestments = investments => {
+  let day = new Date()
+  day.setMonth(day.getMonth() - 1)
+
+  return investments.filter(i => i.dateObj >= day)
+}
+
+const getThreeMonthsInvestments = investments => {
+  let day = new Date()
+  day.setMonth(day.getMonth() - 3)
+
+  return investments.filter(i => i.dateObj >= day)
+}
+
+const getSixMonthsInvestments = investments => {
+  let day = new Date()
+  day.setMonth(day.getMonth() - 6)
+
+  return investments.filter(i => i.dateObj >= day)
+}
+
+const getOneYearInvestments = investments => {
+  let day = new Date()
+  day.setFullYear(day.getFullYear() - 1)
+
+  return investments.filter(i => i.dateObj >= day)
+}
+
 const Dashboard = ({ cas }) => {
   const [ value, setValue ] = useState(0)
   const [ transactionsValue, setTransactionsValue ] = useState(0)
+  const [ performanceValue, setPerformanceValue ] = useState(0)
 
   const handleChange = (_event, newValue) => setValue(newValue)
   const handleTransactionChange = (_event, newValue) => setTransactionsValue(newValue)
+  const handlePerformanceChange = (_event, newValue) => setPerformanceValue(newValue)
   
   let { transactions = [] } = cas || {}
 
+  const investments = getInvestments(transactions)
+
+  const monthInvestments = getMonthInvestments(investments)
+  const threeMonthsInvestments = getThreeMonthsInvestments(investments)
+  const sixMonthsInvestments = getSixMonthsInvestments(investments)
+  const oneYearInvestments = getOneYearInvestments(investments)
+
   return (
     <Grid container spacing={2}>
+      <Grid item xs={12} md={12} lg={12}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" color="primary">
+            Performance
+          </Typography>
+          <Box sx={{ borderColor: 'divider' }}>
+            <Tabs value={performanceValue} onChange={handlePerformanceChange} >
+              <Tab label="All time" {...a11yProps(0)} />
+              <Tab label="1 month" {...a11yProps(1)} />
+              <Tab label="3 months" {...a11yProps(2)} />
+              <Tab label="6 months" {...a11yProps(3)} />
+              <Tab label="1 year" {...a11yProps(4)} />
+            </Tabs>
+          </Box>
+          {(performanceValue === 0) && 
+            <CustomAreaChart data={investments} dataKey="invested" nameKey="date" color="#00bcd4" />
+          }
+          {(performanceValue === 1) && 
+            <CustomAreaChart data={monthInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+          }
+          {(performanceValue === 2) && 
+            <CustomAreaChart data={threeMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+          }
+          {(performanceValue === 3) && 
+            <CustomAreaChart data={sixMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+          }
+          {(performanceValue === 4) && 
+            <CustomAreaChart data={oneYearInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+          }
+        </Paper>
+      </Grid>
       <Grid item xs={12} md={6} lg={6}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" color="primary">
