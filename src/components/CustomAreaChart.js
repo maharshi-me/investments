@@ -8,7 +8,7 @@ import {
   Area
 } from 'recharts'
 
-const CustomAreaChart = ({ data, color, nameKey, dataKey }) => {
+const CustomAreaChart = ({ data, color, nameKey, dataKey, dataMin = 0, dataMax = 'auto' }) => {
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -25,7 +25,7 @@ const CustomAreaChart = ({ data, color, nameKey, dataKey }) => {
         </defs>
         <CartesianGrid stroke='grey' opacity={0.2} vertical={false}/>
         <XAxis dataKey={nameKey} interval={Math.round((data.length) / 6)} />
-        <YAxis tickLine={false} axisLine={false} />
+        <YAxis tickLine={false} axisLine={false} domain={[ dataMin, dataMax ]} />
         <Tooltip />
         <Area type="linear" dot={false} dataKey={dataKey} stroke={color} fillOpacity={1} fill={`url(#colorId-${dataKey}`} strokeWidth={2}/>
       </AreaChart>

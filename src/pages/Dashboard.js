@@ -156,16 +156,16 @@ const Dashboard = ({ cas }) => {
             <CustomAreaChart data={investments} dataKey="invested" nameKey="date" color="#00bcd4" />
           }
           {(performanceValue === 1) && 
-            <CustomAreaChart data={monthInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+            <CustomAreaChart data={monthInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
           }
           {(performanceValue === 2) && 
-            <CustomAreaChart data={threeMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+            <CustomAreaChart data={threeMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
           }
           {(performanceValue === 3) && 
-            <CustomAreaChart data={sixMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+            <CustomAreaChart data={sixMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
           }
           {(performanceValue === 4) && 
-            <CustomAreaChart data={oneYearInvestments} dataKey="invested" nameKey="date" color="#00bcd4" />
+            <CustomAreaChart data={oneYearInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
           }
         </Paper>
       </Grid>
