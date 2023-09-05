@@ -15,17 +15,17 @@ const Portfolio = ({ cas }) => {
     },
     {
       label: "Avg. Cost / Unit",
-      getData: rowData => rowData.currentUnits ? (rowData.currentInvested / rowData.currentUnits).toFixed(4) : "-",
+      getData: rowData => rowData.currentInvested ? (rowData.currentInvested / rowData.currentUnits).toFixed(4) : "-",
       align: "right"
     },
     {
       label: "Current Units",
-      getData: rowData => rowData.currentUnits ? rowData.currentUnits.toFixed(3) : "-",
+      getData: rowData => rowData.currentInvested ? rowData.currentUnits.toFixed(3) : "-",
       align: "right"
     },
     {
       label: "% of Portfolio",
-      getData: rowData => rowData.currentUnits ? `${rowData.percentage.toFixed(2)}%` : "-",
+      getData: rowData => rowData.currentInvested ? `${rowData.percentage.toFixed(2)}%` : "-",
       align: "right",
       getTotalData: data => `${data.reduce((a, b) => a + b.percentage, 0).toFixed(2)}%`
     },

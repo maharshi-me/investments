@@ -43,7 +43,11 @@ function getMonthsBetweenDates(startDate, endDate) {
   const months = []
   let currentDate = new Date(startDate)
 
-  while (currentDate <= endDate) {
+  while (
+    (currentDate.getFullYear() < endDate.getFullYear()) || 
+    ((currentDate.getFullYear() === endDate.getFullYear()) && 
+    (currentDate.getMonth() <= endDate.getMonth()))
+  ) {
     months.push(currentDate.toLocaleDateString('en-IN',{ year:"numeric", month:"short"}))
     currentDate.setMonth(currentDate.getMonth() + 1)
   }
@@ -135,6 +139,8 @@ const Dashboard = ({ cas }) => {
   const threeMonthsInvestments = getThreeMonthsInvestments(investments)
   const sixMonthsInvestments = getSixMonthsInvestments(investments)
   const oneYearInvestments = getOneYearInvestments(investments)
+
+  console.log(getMonthlyBarChart(transactions))
 
   return (
     <Grid container spacing={2}>
