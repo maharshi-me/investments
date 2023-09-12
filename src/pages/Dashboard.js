@@ -144,7 +144,7 @@ const Dashboard = ({ cas }) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={12} lg={12}>
+      <Grid item xs={12} md={12} lg={6}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" color="primary">
             Performance

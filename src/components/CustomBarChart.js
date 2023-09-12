@@ -3,13 +3,16 @@ import { useState } from 'react'
 import {
   Bar,
   BarChart,
+  CartesianGrid,
   Cell,
   ReferenceLine,
   ResponsiveContainer,
-  Tooltip
+  Tooltip,
+  YAxis
 } from 'recharts'
 
 import CustomTooltipContent from 'components/CustomTooltipContent'
+import getShortRupeesString from 'utils/functions/getShortRupeesString'
 
 const CustomBarChart = ({ data, dataKey, nameKey }) => {
   const [ hoveredItem, setHoveredItem ] = useState(null)
@@ -20,6 +23,8 @@ const CustomBarChart = ({ data, dataKey, nameKey }) => {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data} >
+      <CartesianGrid stroke='grey' opacity={0.2} vertical={false}/>
+        <YAxis tickLine={false} axisLine={false} tickFormatter={getShortRupeesString} />
         <Bar
           onMouseEnter={onBarEnter}
           onMouseLeave={onBarExit}

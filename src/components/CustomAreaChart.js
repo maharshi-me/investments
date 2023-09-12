@@ -8,6 +8,8 @@ import {
   Area
 } from 'recharts'
 
+import getShortRupeesString from 'utils/functions/getShortRupeesString'
+
 const CustomAreaChart = ({ data, color, nameKey, dataKey, dataMin = 0, dataMax = 'auto' }) => {
 
   return (
@@ -19,13 +21,13 @@ const CustomAreaChart = ({ data, color, nameKey, dataKey, dataMin = 0, dataMax =
       >
         <defs>
           <linearGradient id={`colorId-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity={0.5}/>
-            <stop offset="100%" stopColor={color} stopOpacity={0}/>
-          </linearGradient>
+          <stop offset="5%" stopColor={color} stopOpacity={0.5}/>
+          <stop offset="95%" stopColor={color} stopOpacity={0}/>
+        </linearGradient>
         </defs>
         <CartesianGrid stroke='grey' opacity={0.2} vertical={false}/>
-        <XAxis dataKey={nameKey} interval={Math.round((data.length) / 6)} />
-        <YAxis tickLine={false} axisLine={false} domain={[ dataMin, dataMax ]} />
+        <XAxis tickLine={false} axisLine={false} dataKey={nameKey} interval={Math.round((data.length) / 4)} />
+        <YAxis tickLine={false} axisLine={false} domain={[ dataMin, dataMax ]} tickFormatter={getShortRupeesString} />
         <Tooltip />
         <Area type="linear" dot={false} dataKey={dataKey} stroke={color} fillOpacity={1} fill={`url(#colorId-${dataKey}`} strokeWidth={2}/>
       </AreaChart>

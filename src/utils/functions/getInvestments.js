@@ -29,7 +29,6 @@ const getInvestments = transactions => {
   ts.sort(byDateAsc)
 
   let endDate = new Date()
-  endDate.setDate(endDate.getDate() - 1)
   const startDate = ts.length > 0 ? ts[0].date : endDate
 
   let allDatesList = getAllDatesList(startDate, endDate)

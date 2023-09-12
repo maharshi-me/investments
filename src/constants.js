@@ -9,7 +9,7 @@ const MUTUAL_FUNDS = Object.freeze({
   },
   "Mirae Asset Tax Saver Fund": {
     type: "Equity",
-    color: "#8bc34a"
+    color: "#f44336"
   },
   "UTI Nifty Next 50 Index Fund": {
     type: "Equity",
@@ -17,15 +17,15 @@ const MUTUAL_FUNDS = Object.freeze({
   },
   "ICICI Prudential Long Term Equity Fund ( Tax Saving )": {
     type: "Equity",
-    color: "#795548"
+    color: "#9c27b0"
   },
   "NIPPON INDIA LIQUID FUND": {
     type: "Liquid",
-    color: "#9c27b0"
+    color: "#795548"
   },
   "Axis Liquid Fund": {
     type: "Liquid",
-    color: "#f44336"
+    color: "#795548"
   },
   "PGIM India Liquid Fund": {
     type: "Liquid",
@@ -33,11 +33,11 @@ const MUTUAL_FUNDS = Object.freeze({
   },
   "ICICI Prudential Liquid Fund": {
     type: "Liquid",
-    color: "#2196f3"
+    color: "#607d8b"
   },
   "ICICI Prudential Banking and PSU Debt Fund": {
     type: "Debt",
-    color: "#e8fe03"
+    color: "#607d8b"
   },
   "SBI Liquid Fund": {
     type: "Liquid",
@@ -53,7 +53,7 @@ const MUTUAL_FUNDS = Object.freeze({
   },
   "Aditya Birla Sun Life Liquid Fund": {
     type: "Liquid",
-    color: "#2196f3"
+    color: "#8bc34a"
   }
 })
 
