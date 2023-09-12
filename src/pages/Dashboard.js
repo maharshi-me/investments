@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Grid, Box, Tabs, Tab, Paper, Typography } from '@mui/material'
+import { Grid, Paper, Typography } from '@mui/material'
 
 import byDateAsc from 'utils/functions/byDateAsc'
 import CustomAreaChart from 'components/CustomAreaChart'
 import CustomBarChart from 'components/CustomBarChart'
+import CustomNavTab from 'components/CustomNavTab'
 import CustomPieChart from 'components/CustomPieChart'
 import getInvestments from 'utils/functions/getInvestments'
 import getPortfolio from 'utils/functions/getPortfolio'
@@ -87,13 +88,6 @@ const getMonthlyBarChart = transactions => {
   return data
 }
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  }
-}
-
 const getMonthInvestments = investments => {
   let day = new Date()
   day.setMonth(day.getMonth() - 1)
@@ -123,24 +117,93 @@ const getOneYearInvestments = investments => {
 }
 
 const Dashboard = ({ cas }) => {
-  const [ value, setValue ] = useState(0)
-  const [ transactionsValue, setTransactionsValue ] = useState(0)
-  const [ performanceValue, setPerformanceValue ] = useState(0)
+  const [ value, setValue ] = useState("Type")
+  const [ transactionsValue, setTransactionsValue ] = useState('Anually')
+  const [ performanceValue, setPerformanceValue ] = useState('All time')
 
-  const handleChange = (_event, newValue) => setValue(newValue)
-  const handleTransactionChange = (_event, newValue) => setTransactionsValue(newValue)
-  const handlePerformanceChange = (_event, newValue) => setPerformanceValue(newValue)
   
   let { transactions = [] } = cas || {}
 
   const investments = getInvestments(transactions)
 
-  const monthInvestments = getMonthInvestments(investments)
-  const threeMonthsInvestments = getThreeMonthsInvestments(investments)
-  const sixMonthsInvestments = getSixMonthsInvestments(investments)
-  const oneYearInvestments = getOneYearInvestments(investments)
+  const getAdditionalPerformanceChartProps = v => {
+    switch (v) {
+      case "All time":
+        return {
+          data: investments
+        }
+      case "1 month":
+        return {
+          data: getMonthInvestments(investments),
+          dataMin: "auto"
+        }
+      case "3 months":
+        return {
+          data: getThreeMonthsInvestments(investments),
+          dataMin: "auto"
+        }
+      case "6 months":
+        return {
+          data: getSixMonthsInvestments(investments),
+          dataMin: "auto"
+        }
+      case "1 year":
+        return {
+          data: getOneYearInvestments(investments),
+          dataMin: "auto"
+        }
+      default:
+        return {
+          data: investments
+        }
+    }
+  }
 
-  console.log(getMonthlyBarChart(transactions))
+  const getAdditionalTransactionsChartProps = v => {
+    switch (v) {
+      case "Anually":
+        return {
+          data: getYearlyBarChart(transactions),
+          nameKey: "year"
+        }
+      case "Last 12 months":
+        return {
+          data: getMonthlyBarChart(transactions).slice(-12),
+          nameKey: "month"
+        }
+      case "All months":
+        return {
+          data: getMonthlyBarChart(transactions),
+          nameKey: "month"
+        }
+      default:
+        return {
+          data: getYearlyBarChart(transactions),
+          nameKey: "year"
+        }
+    }
+  }
+
+  const getAdditionalValueProps = v => {
+    switch (v) {
+      case "Type":
+        return {
+          data: getTypePortfolio(transactions),
+          nameKey: "type"
+        }
+      case "Funds":
+        return {
+          data: getPortfolio(transactions),
+          nameKey: "mfName"
+        }
+
+      default:
+        return {
+          data: getTypePortfolio(transactions),
+          nameKey: "type"
+        }
+    }
+  }
 
   return (
     <Grid container spacing={2}>
@@ -149,30 +212,12 @@ const Dashboard = ({ cas }) => {
           <Typography variant="h6" color="primary">
             Performance
           </Typography>
-          <Box sx={{ borderColor: 'divider' }}>
-            <Tabs value={performanceValue} onChange={handlePerformanceChange} >
-              <Tab label="All time" {...a11yProps(0)} />
-              <Tab label="1 month" {...a11yProps(1)} />
-              <Tab label="3 months" {...a11yProps(2)} />
-              <Tab label="6 months" {...a11yProps(3)} />
-              <Tab label="1 year" {...a11yProps(4)} />
-            </Tabs>
-          </Box>
-          {(performanceValue === 0) && 
-            <CustomAreaChart data={investments} dataKey="invested" nameKey="date" color="#00bcd4" />
-          }
-          {(performanceValue === 1) && 
-            <CustomAreaChart data={monthInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
-          }
-          {(performanceValue === 2) && 
-            <CustomAreaChart data={threeMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
-          }
-          {(performanceValue === 3) && 
-            <CustomAreaChart data={sixMonthsInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
-          }
-          {(performanceValue === 4) && 
-            <CustomAreaChart data={oneYearInvestments} dataKey="invested" nameKey="date" color="#00bcd4" dataMin="auto" />
-          }
+          <CustomNavTab
+            tabs={[ "All time", "1 month", "3 months", "6 months", "1 year" ]}
+            value={performanceValue}
+            setValue={setPerformanceValue}
+          />
+          <CustomAreaChart key={performanceValue} dataKey="invested" nameKey="date" color="#00bcd4" {...getAdditionalPerformanceChartProps(performanceValue)} />
         </Paper>
       </Grid>
       <Grid item xs={12} md={6} lg={6}>
@@ -180,22 +225,12 @@ const Dashboard = ({ cas }) => {
           <Typography variant="h6" color="primary">
             Transactions
           </Typography>
-          <Box sx={{ borderColor: 'divider' }}>
-            <Tabs value={transactionsValue} onChange={handleTransactionChange} >
-              <Tab label="Anually" {...a11yProps(0)} />
-              <Tab label="Last 12 months" {...a11yProps(1)} />
-              <Tab label="All months" {...a11yProps(1)} />
-            </Tabs>
-          </Box>
-          {(transactionsValue === 0) && 
-            <CustomBarChart data={getYearlyBarChart(transactions)} dataKey="amount" nameKey="year" />
-          }
-          {(transactionsValue === 1) && 
-            <CustomBarChart data={getMonthlyBarChart(transactions).slice(-12)} dataKey="amount" nameKey="month" />
-          }
-          {(transactionsValue === 2) && 
-            <CustomBarChart data={getMonthlyBarChart(transactions)} dataKey="amount" nameKey="month" />
-          }
+          <CustomNavTab
+            tabs={[ "Anually", "Last 12 months", "All months" ]}
+            value={transactionsValue}
+            setValue={setTransactionsValue}
+          />
+          <CustomBarChart key={transactionsValue} dataKey="amount" {...getAdditionalTransactionsChartProps(transactionsValue)} />
         </Paper>
       </Grid>
       <Grid item xs={12} md={6} lg={6}>
@@ -203,18 +238,12 @@ const Dashboard = ({ cas }) => {
           <Typography variant="h6" color="primary">
             Allocation
           </Typography>
-          <Box sx={{ borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-              <Tab label="Type" {...a11yProps(0)} />
-              <Tab label="Funds" {...a11yProps(1)} />
-            </Tabs>
-          </Box>
-          {(value === 0) && 
-            <CustomPieChart data={getTypePortfolio(transactions)} dataKey="currentInvested" nameKey="type" />
-          }
-          {(value === 1) && 
-            <CustomPieChart data={getPortfolio(transactions)} dataKey="currentInvested" nameKey="mfName" />
-          }
+          <CustomNavTab
+            tabs={[ "Type", "Funds" ]}
+            value={value}
+            setValue={setValue}
+          />
+          <CustomPieChart key={value} dataKey="currentInvested" {...getAdditionalValueProps(value)} />
         </Paper>
       </Grid>
     </Grid>
