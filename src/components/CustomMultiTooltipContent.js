@@ -13,10 +13,10 @@ const CustomMultiTooltipContent = ({ active, payload, nameKey, hideLabel }) => {
             label = label[0].toUpperCase() + label.slice(1)
 
             return (
-              <>
+              <div key={label}>
                 <span style={{color: p.color}}>{label} : </span>
                 <span style={{fontWeight:"bolder", color: p.color}}>{getRupeesString(p.value)}</span>
-              </>
+              </div>
             )
           })}
         </div>
