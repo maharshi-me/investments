@@ -1,6 +1,5 @@
 import {
   ResponsiveContainer,
-  XAxis,
   YAxis,
   Tooltip,
   CartesianGrid,
@@ -9,6 +8,7 @@ import {
 } from 'recharts'
 
 import getShortRupeesString from 'utils/functions/getShortRupeesString'
+import CustomMultiTooltipContent from 'components/CustomMultiTooltipContent'
 
 const CustomAreaChart = ({ data, color, nameKey, dataKey, dataMin = 0, dataMax = 'auto' }) => {
 
@@ -21,14 +21,13 @@ const CustomAreaChart = ({ data, color, nameKey, dataKey, dataMin = 0, dataMax =
       >
         <defs>
           <linearGradient id={`colorId-${dataKey}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor={color} stopOpacity={0.5}/>
-          <stop offset="95%" stopColor={color} stopOpacity={0}/>
-        </linearGradient>
+            <stop offset="5%" stopColor={color} stopOpacity={0.5}/>
+            <stop offset="95%" stopColor={color} stopOpacity={0}/>
+          </linearGradient>
         </defs>
         <CartesianGrid stroke='grey' opacity={0.2} vertical={false}/>
-        <XAxis tickLine={false} axisLine={false} dataKey={nameKey} interval={Math.round((data.length) / 4)} />
         <YAxis tickLine={false} axisLine={false} domain={[ dataMin, dataMax ]} tickFormatter={getShortRupeesString} />
-        <Tooltip />
+        <Tooltip content={<CustomMultiTooltipContent nameKey={nameKey} />} cursor={false}/>
         <Area type="linear" dot={false} dataKey={dataKey} stroke={color} fillOpacity={1} fill={`url(#colorId-${dataKey}`} strokeWidth={2}/>
       </AreaChart>
     </ResponsiveContainer>
