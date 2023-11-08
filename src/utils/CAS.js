@@ -85,13 +85,19 @@ const filterText = text => {
   })
   
   filteredLines.forEach((line, index) => {
+    if (line.includes("( Non - Demat )")) {
+      filteredLines[index] = line.split("( Non - Demat )").join('').trim()
+    }
+  })
+
+  filteredLines.forEach((line, index) => {
     if (line.includes("Registrar :")) {
       filteredLines[index] = line.split('-').slice(0, -1).join('-').trim()
     }
   })
 
   filteredLines.forEach((line, index) => {
-    if (line.includes("formerly")) {
+    if (line.includes("formerly") || line.includes("Formerly")) {
       filteredLines[index] = line.split('(').slice(0, -1).join('').trim()
     }
   })

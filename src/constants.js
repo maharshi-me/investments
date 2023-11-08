@@ -15,7 +15,7 @@ const MUTUAL_FUNDS = Object.freeze({
     type: "Equity",
     color: "#ffeb3b"
   },
-  "ICICI Prudential Long Term Equity Fund ( Tax Saving )": {
+  "ICICI Prudential ELSS Tax Saver Fund": {
     type: "Equity",
     color: "#9c27b0"
   },
@@ -47,7 +47,7 @@ const MUTUAL_FUNDS = Object.freeze({
     type: "Liquid",
     color: '#607d8b'
   },
-  "UTI Liquid Cash": {
+  "UTI Liquid Fund": {
     type: "Liquid",
     color: "#607d8b"
   },
