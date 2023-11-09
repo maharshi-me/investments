@@ -29,7 +29,7 @@ const getInvestments = transactions => {
   ts.sort(byDateAsc)
 
   let endDate = new Date()
-  const startDate = ts.length > 0 ? ts[0].date : endDate
+  const startDate = ts.length > 0 ? new Date(ts[0].date) : endDate
 
   let allDatesList = getAllDatesList(startDate, endDate)
   let allDateObjsList = getAllDateObjsList(startDate, endDate)
@@ -45,7 +45,7 @@ const getInvestments = transactions => {
   for (let i = 0; i < ts.length; i++) {
     let t = ts[i]
 
-    const transactionDateString = t.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'})
+    const transactionDateString = new Date(t.date).toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'})
 
     while(transactionDateString !== allDatesList[currentIndex]) {
       currentIndex += 1

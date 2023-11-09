@@ -5,6 +5,7 @@ import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import Box from '@mui/material/Box'
+import Cached from "@mui/icons-material/Cached"
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
@@ -96,6 +97,8 @@ const getHeader = path => {
       return 'Transactions'
     case 'profile':
       return 'Profile'
+    case 'cache':
+      return 'Cache'
     default:
       return ''
   }
@@ -162,6 +165,7 @@ const Layout = () => {
             <MenuItem icon={<Paid />} path="tax-reports" label="Tax Reports" /> */}
             <MenuItem icon={<ReceiptLong />} path="transactions" label="Transactions" />
             <MenuItem icon={<Person2Icon />} path="profile" label="Profile" />
+            <MenuItem icon={<Cached />} path="cache" label="Cache" />
           </List>
         </Drawer>
         <Box

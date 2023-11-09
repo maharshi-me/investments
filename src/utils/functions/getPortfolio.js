@@ -3,6 +3,17 @@ import { getColor } from "constants"
 import byDateAsc from 'utils/functions/byDateAsc'
 import byTotalCostDesc from "utils/functions/byTotalCostDesc"
 
+const getLatestPrice = (mfname) => {
+  let data = localStorage.getItem(mfname)
+  
+  if (data) {
+    data = JSON.parse(data)
+    return Number(data.data[0].nav)
+  }
+
+  return null
+}
+
 const getPortfolio = transactions => {
   let ts = transactions.slice()
   ts.sort(byDateAsc)
@@ -16,7 +27,7 @@ const getPortfolio = transactions => {
         out[i].existingFunds.push({
           price: transaction.price * 10000,
           units: transaction.units * 1000,
-          date: transaction.date
+          date: new Date(transaction.date)
         })
       }
       else {
@@ -60,7 +71,10 @@ const getPortfolio = transactions => {
       ef.price /= 10000
     })
     o.currentInvested = Math.round(invested / 10000000)
-    o.currentUnits = units / 1000
+    o.currentUnits = units > 0.00001 ? (units / 1000) : 0
+    o.latestPrice = getLatestPrice(o.mfName)
+    o.currentValue = o.latestPrice ? (o.currentUnits * o.latestPrice) : 0
+    o.profit = o.currentValue - o.currentInvested
     o.color = getColor(o.mfName)
   })
 

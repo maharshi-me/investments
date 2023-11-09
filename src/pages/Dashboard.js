@@ -17,7 +17,7 @@ const getYearlyBarChart = transactions => {
   let data = []
   const dt = new Date()
   const currentYear = Number(dt.getFullYear())
-  const firstYear = ts.length > 0 ? Number(ts[0].date.toLocaleDateString("en-IN", {year: 'numeric'})) : currentYear
+  const firstYear = ts.length > 0 ? Number(new Date(ts[0].date).toLocaleDateString("en-IN", {year: 'numeric'})) : currentYear
 
   for (let y = firstYear; y <= currentYear; y++) {
     data.push({
@@ -27,7 +27,7 @@ const getYearlyBarChart = transactions => {
   }
 
   ts.forEach(t => {
-    const y_index = data.findIndex(d => d.year === t.date.toLocaleDateString("en-IN", { year: 'numeric' }))
+    const y_index = data.findIndex(d => d.year === new Date(t.date).toLocaleDateString("en-IN", { year: 'numeric' }))
 
     if (t.type === 'Investment') {
       data[y_index].amount += t.amount
@@ -61,7 +61,7 @@ const getMonthlyBarChart = transactions => {
   ts.sort(byDateAsc)
 
   const endDate = new Date()
-  const startDate = ts.length > 0 ? ts[0].date : endDate
+  const startDate = ts.length > 0 ? new Date(ts[0].date) : endDate
 
   const allMonthsList = getMonthsBetweenDates(startDate, endDate)
 
@@ -75,7 +75,7 @@ const getMonthlyBarChart = transactions => {
   })
 
   ts.forEach(t => {
-    const m_index = data.findIndex(d => d.month === t.date.toLocaleDateString('en-IN',{ year:"numeric", month:"short"}))
+    const m_index = data.findIndex(d => d.month === new Date(t.date).toLocaleDateString('en-IN',{ year:"numeric", month:"short"}))
 
     if (t.type === 'Investment') {
       data[m_index].amount += t.amount
@@ -121,7 +121,6 @@ const Dashboard = ({ cas }) => {
   const [ transactionsValue, setTransactionsValue ] = useState('Anually')
   const [ performanceValue, setPerformanceValue ] = useState('All time')
 
-  
   let { transactions = [] } = cas || {}
 
   const investments = getInvestments(transactions)

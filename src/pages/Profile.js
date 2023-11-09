@@ -26,15 +26,15 @@ const Profile = ({ cas }) => {
   const importData = [
     {
       label: "Exported at",
-      value: meta.exportedAt.toLocaleString('en-IN')
+      value: new Date(meta.exportedAt).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit"})
     },
     {
       label: "Statement from date",
-      value: meta.from.toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
+      value: new Date(meta.from).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
     },
     {
       label: "Statement to date",
-      value: meta.to.toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
+      value: new Date(meta.to).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
     }
   ]
 
