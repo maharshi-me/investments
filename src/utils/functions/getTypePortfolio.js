@@ -11,12 +11,14 @@ const getTypePortfolio = transactions => {
 
     if (i >= 0) {
       out[i].currentInvested += p.currentInvested
+      out[i].currentValue += p.currentValue
     }
     else {
       out.push({
         type: getAssetType(p.mfName),
         currentInvested: p.currentInvested,
-        color: getAssetColor(p.mfName)
+        color: getAssetColor(p.mfName),
+        currentValue: p.currentValue
       })
     }
   })

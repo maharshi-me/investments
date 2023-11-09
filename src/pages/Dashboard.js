@@ -242,7 +242,7 @@ const Dashboard = ({ cas }) => {
             value={value}
             setValue={setValue}
           />
-          <CustomPieChart key={value} dataKey="currentInvested" {...getAdditionalValueProps(value)} />
+          <CustomPieChart key={value} dataKey="currentValue" {...getAdditionalValueProps(value)} />
         </Paper>
       </Grid>
     </Grid>

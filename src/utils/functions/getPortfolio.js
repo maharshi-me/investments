@@ -55,7 +55,7 @@ const getPortfolio = transactions => {
         existingFunds: [ {
           price: transaction.price * 10000,
           units: transaction.units * 1000,
-          date: transaction.date
+          date: new Date(transaction.date)
         } ]
       })
     }
