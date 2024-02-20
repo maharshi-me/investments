@@ -9,7 +9,7 @@ const MUTUAL_FUNDS = Object.freeze({
     color: "#e81e63",
     url: "https://api.mfapi.in/mf/120716"
   },
-  "Mirae Asset Tax Saver Fund": {
+  "Mirae Asset ELSS Tax Saver Fund": {
     type: "Equity",
     color: "#f44336",
     url: "https://api.mfapi.in/mf/135781"

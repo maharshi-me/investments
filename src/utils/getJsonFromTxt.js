@@ -60,43 +60,45 @@ const getTransactions = lines => {
       }
     }
     else {
-      let amount, units
-      let amountStr = line.split(" ")[1]
-      let unitsStr = line.split(" ")[3]
-      let type = 'Investment'
+      if (line[2] === '-') {
+        let amount, units
+        let amountStr = line.split(" ")[1]
+        let unitsStr = line.split(" ")[3]
+        let type = 'Investment'
 
-      if (amountStr[0] === '(') {
-        amount = strToCur(amountStr.slice(1, -1))
-        type = "Redemption"
-      }
-      else {
-        amount = strToCur(amountStr)
-      }
+        if (amountStr[0] === '(') {
+          amount = strToCur(amountStr.slice(1, -1))
+          type = "Redemption"
+        }
+        else {
+          amount = strToCur(amountStr)
+        }
 
-      if (unitsStr[0] === '(') {
-        units = strToUnits(unitsStr.slice(1, -1))
-      }
-      else {
-        units = strToUnits(unitsStr)
-      }
+        if (unitsStr[0] === '(') {
+          units = strToUnits(unitsStr.slice(1, -1))
+        }
+        else {
+          units = strToUnits(unitsStr)
+        }
 
-      folio = folio.split("/")[0].trim()
+        folio = folio.split("/")[0].trim()
 
-      filteredLines[index] = {
-        mfNameFull,
-        mfName,
-        folio,
-        date: new Date(
-          Number(line.split(" ")[0].split("-")[2]),
-          MONTHS.indexOf(line.split(" ")[0].split("-")[1]),
-          Number(line.split(" ")[0].split("-")[0])
-        ),
-        amount,
-        type,
-        price: strToPrice(line.split(" ")[2]),
-        units,
-        content: line,
-        key: index
+        filteredLines[index] = {
+          mfNameFull,
+          mfName,
+          folio,
+          date: new Date(
+            Number(line.split(" ")[0].split("-")[2]),
+            MONTHS.indexOf(line.split(" ")[0].split("-")[1]),
+            Number(line.split(" ")[0].split("-")[0])
+          ),
+          amount,
+          type,
+          price: strToPrice(line.split(" ")[2]),
+          units,
+          content: line,
+          key: index
+        }
       }
     }
   })
