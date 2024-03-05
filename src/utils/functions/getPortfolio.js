@@ -64,15 +64,19 @@ const getPortfolio = transactions => {
   out.forEach(o => {
     let invested = 0
     let units = 0
+    o.latestPrice = getLatestPrice(o.mfName)
     o.existingFunds.forEach(ef => {
       invested += (ef.units * ef.price)
       units += ef.units
       ef.units /= 1000
       ef.price /= 10000
+      ef.invested = ef.units * ef.price
+      ef.currentValue = o.latestPrice ? (ef.units * o.latestPrice) : 0
+      ef.profit = ef.currentValue - ef.invested
+      ef.gain = (ef.profit / ef.invested) * 100
     })
     o.currentInvested = Math.round(invested / 10000000)
     o.currentUnits = units > 0.00001 ? (units / 1000) : 0
-    o.latestPrice = getLatestPrice(o.mfName)
     o.currentValue = o.latestPrice ? (o.currentUnits * o.latestPrice) : 0
     o.profit = o.currentValue - o.currentInvested
     o.color = getColor(o.mfName)
