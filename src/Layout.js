@@ -1,9 +1,4 @@
-import { useState } from "react"
-import { Outlet, useNavigate, useLocation } from "react-router-dom"
-import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
-
 import AccountBalanceWallet from '@mui/icons-material/AccountBalanceWallet'
-import BarChartIcon from '@mui/icons-material/BarChart'
 import Box from '@mui/material/Box'
 import Cached from "@mui/icons-material/Cached"
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
@@ -11,7 +6,6 @@ import Container from '@mui/material/Container'
 import CssBaseline from '@mui/material/CssBaseline'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import Divider from '@mui/material/Divider'
-import DonutLarge from '@mui/icons-material/DonutLarge'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
@@ -20,11 +14,13 @@ import ListItemText from '@mui/material/ListItemText'
 import MenuIcon from '@mui/icons-material/Menu'
 import MuiAppBar from '@mui/material/AppBar'
 import MuiDrawer from '@mui/material/Drawer'
-import Paid from '@mui/icons-material/Paid'
 import Person2Icon from '@mui/icons-material/Person2';
 import ReceiptLong from '@mui/icons-material/ReceiptLong'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles'
+import { Outlet, useNavigate, useLocation } from "react-router-dom"
+import { useState } from "react"
 
 const drawerWidth = 240
 
@@ -160,9 +156,6 @@ const Layout = () => {
           <List component="nav">
             <MenuItem icon={<DashboardIcon />} path="" label="Dashboard" />
             <MenuItem icon={<AccountBalanceWallet />} path="portfolio" label="Portfolio" />
-            {/* <MenuItem icon={<BarChartIcon />} path="performance" label="Performance" />
-            <MenuItem icon={<DonutLarge />} path="analytics" label="Analytics" />
-            <MenuItem icon={<Paid />} path="tax-reports" label="Tax Reports" /> */}
             <MenuItem icon={<ReceiptLong />} path="transactions" label="Transactions" />
             <MenuItem icon={<Person2Icon />} path="profile" label="Profile" />
             <MenuItem icon={<Cached />} path="cache" label="Cache" />

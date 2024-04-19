@@ -25,7 +25,7 @@ function App() {
 
   if (!cas) {
     cas = CAS()
-    
+
     if (cas) {
       cas.lastSyncedAt = Date.now()
       localStorage.setItem('cas', JSON.stringify(cas))
@@ -36,7 +36,7 @@ function App() {
 
     if (((Date.now() - cas.lastSyncedAt) / 1000) > 10000) {
       cas = CAS()
-    
+
       if (cas) {
         cas.lastSyncedAt = Date.now()
         localStorage.setItem('cas', JSON.stringify(cas))

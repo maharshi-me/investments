@@ -19,9 +19,9 @@ const CustomPieChart = ({ data, dataKey, nameKey }) => {
 
   const getItemPercentage = useCallback(name => {
     if (hiddenItems.some(hiddenItem => hiddenItem === name)) return null
-    
+
     let totalDataItemsSum = 0
-  
+
     dataItems.forEach(dataItem => {
       if (!hiddenItems.some(hiddenItem => hiddenItem === dataItem[nameKey])) {
         totalDataItemsSum += dataItem[dataKey]
@@ -29,7 +29,7 @@ const CustomPieChart = ({ data, dataKey, nameKey }) => {
     })
 
     const currentData = [...dataItems].filter(dataItem => dataItem[nameKey] === name)[0][dataKey]
-    
+
     return ((currentData / totalDataItemsSum) * 100).toFixed(2)
   }, [ dataItems, hiddenItems ])
 

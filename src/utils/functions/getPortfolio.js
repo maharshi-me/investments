@@ -5,7 +5,7 @@ import byTotalCostDesc from "utils/functions/byTotalCostDesc"
 
 const getLatestPrice = (mfname) => {
   let data = localStorage.getItem(mfname)
-  
+
   if (data) {
     data = JSON.parse(data)
     return Number(data.data[0].nav)
@@ -18,7 +18,7 @@ const getPortfolio = transactions => {
   let ts = transactions.slice()
   ts.sort(byDateAsc)
   let out = []
-  
+
   ts.forEach(transaction => {
     const i = out.findIndex(o => o.mfName === transaction.mfName)
     if (i >= 0) {

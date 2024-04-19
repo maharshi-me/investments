@@ -29,7 +29,7 @@ const filterText = text => {
 
   let filteredLines = filterLinesWithText(lines)
 
-  filteredLines = filteredLines.filter(line => 
+  filteredLines = filteredLines.filter(line =>
     !isLineStartsWith(line, 'Page') &&
     !isLineStartsWith(line, 'Date Amount') &&
     !isLineStartsWith(line, '(INR) (INR)') &&
@@ -83,7 +83,7 @@ const filterText = text => {
       filteredLines[index] = line.split('-').slice(1).join('-').trim()
     }
   })
-  
+
   filteredLines.forEach((line, index) => {
     if (line.includes("( Non - Demat )")) {
       filteredLines[index] = line.split("( Non - Demat )").join('').trim()
@@ -127,7 +127,7 @@ const filterText = text => {
     if (read) {
       newFilteredLines.push(filteredLines[i])
     }
-    
+
     if (filteredLines[i].includes("Market Value on")) {
       read = false
     }
@@ -137,7 +137,7 @@ const filterText = text => {
       read = true
     }
   }
-  
+
   newFilteredLines = excludeLinesThatInclude(newFilteredLines, 'Market Value on')
 
   newFilteredLines = newFilteredLines.filter((_line, index) => {
@@ -148,7 +148,7 @@ const filterText = text => {
         }
       }
     }
-    
+
     return true
   })
 
@@ -169,7 +169,7 @@ async function extractTextFromPDF() {
   for (let pageNum = 1; pageNum <= numPages; pageNum++) {
     const page = await pdf.getPage(pageNum)
     const pageText = await page.getTextContent()
-    
+
     pageText.items.forEach(item => {
       if (item.hasEOL) {
         if (isText(item.str)) {

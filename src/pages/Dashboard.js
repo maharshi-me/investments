@@ -45,8 +45,8 @@ function getMonthsBetweenDates(startDate, endDate) {
   let currentDate = new Date(startDate)
 
   while (
-    (currentDate.getFullYear() < endDate.getFullYear()) || 
-    ((currentDate.getFullYear() === endDate.getFullYear()) && 
+    (currentDate.getFullYear() < endDate.getFullYear()) ||
+    ((currentDate.getFullYear() === endDate.getFullYear()) &&
     (currentDate.getMonth() <= endDate.getMonth()))
   ) {
     months.push(currentDate.toLocaleDateString('en-IN',{ year:"numeric", month:"short"}))

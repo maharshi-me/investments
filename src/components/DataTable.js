@@ -1,4 +1,4 @@
-import { 
+import {
   Paper,
   Table,
   TableBody,
@@ -7,13 +7,10 @@ import {
   TableRow,
   Typography
 } from '@mui/material'
-
 import { useState, Fragment } from 'react';
 
-import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import IconButton from '@mui/material/IconButton';
-import TableContainer from '@mui/material/TableContainer';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
@@ -29,16 +26,16 @@ const DataTable = ({
   title = null
 }) => (
   <Paper sx={{ p: 3 }}>
-    {title && 
+    {title &&
       <Typography variant="h6" color="primary">
         {title}
       </Typography>
-    }   
+    }
     <Table size="small">
       <TableHead>
         <TableRow>
           {collapseable ? <TableCell /> : null}
-          {columns.map(c => 
+          {columns.map(c =>
             <TableCell
               style={{
                 fontWeight: 'bold',
@@ -63,10 +60,10 @@ const DataTable = ({
             collapseableDataKey={collapseableDataKey}
           />
         ))}
-        {showTotal && 
+        {showTotal &&
           <TableRow>
             {collapseable ? <TableCell /> : null}
-            {columns.map(c => 
+            {columns.map(c =>
               <TableCell style={{ fontWeight: "bold", borderColor: noBorders ? 'white' : `rgba(224, 224, 224, 1)` }} align={c.align || 'inherit'}>
                 {c.getTotalData ? c.getTotalData(data) : '-'}
               </TableCell>
@@ -85,7 +82,7 @@ function Row(props) {
   return (
     <Fragment>
       <TableRow>
-        {collapseable ? 
+        {collapseable ?
           <TableCell
             style={{
               borderColor: noBorders ? 'white' : `rgba(224, 224, 224, 1)`
@@ -99,7 +96,7 @@ function Row(props) {
             </IconButton>
           </TableCell>
         : null}
-        {columns.map(c => 
+        {columns.map(c =>
           <TableCell
             style={{
               fontWeight: c.bold ? "bold" : "normal",
@@ -112,7 +109,7 @@ function Row(props) {
           </TableCell>
         )}
       </TableRow>
-      {collapseable ? 
+      {collapseable ?
         <TableRow>
           <TableCell style={{
             padding: 0,
@@ -123,7 +120,7 @@ function Row(props) {
                   <TableHead>
                     <TableRow>
                       <TableCell></TableCell>
-                      {collapseableColumns.map(c => 
+                      {collapseableColumns.map(c =>
                         <TableCell
                           style={{
                             fontWeight: 'bold',
@@ -140,7 +137,7 @@ function Row(props) {
                     {d[collapseableDataKey].map (cd =>
                       <TableRow>
                         <TableCell></TableCell>
-                        {collapseableColumns.map(c => 
+                        {collapseableColumns.map(c =>
                           <TableCell
                             style={{
                               fontWeight: c.bold ? "bold" : "normal",
