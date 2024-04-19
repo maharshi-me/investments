@@ -19,7 +19,7 @@ const DataTable = ({
   data = [],
   keyColumn = '',
   noBorders = false,
-  showTotal = false,
+  showTotalRow = false,
   collapseable = false,
   collapseableColumns = [],
   collapseableDataKey = '',
@@ -60,12 +60,12 @@ const DataTable = ({
             collapseableDataKey={collapseableDataKey}
           />
         ))}
-        {showTotal &&
+        {showTotalRow &&
           <TableRow>
             {collapseable ? <TableCell /> : null}
             {columns.map(c =>
               <TableCell style={{ fontWeight: "bold", borderColor: noBorders ? 'white' : `rgba(224, 224, 224, 1)` }} align={c.align || 'inherit'}>
-                {c.getTotalData ? c.getTotalData(data) : '-'}
+                {c.getTotalData ? c.getTotalData(data) : ''}
               </TableCell>
             )}
           </TableRow>
@@ -105,7 +105,9 @@ function Row(props) {
             align={c.align || 'inherit'}
             sx={c.sx && c.sx(d)}
           >
-            {c.getData(d)}
+            {c.renderColumn
+              ? c.renderColumn(d)
+              : c.getData(d)}
           </TableCell>
         )}
       </TableRow>

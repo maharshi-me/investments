@@ -9,18 +9,30 @@ import Profile from "pages/Profile"
 import Cache from "pages/Cache"
 import { getURL } from "constants";
 
-const callAPI = async (key, url) => {
+import byDateDesc from 'utils/functions/byDateDesc'
+
+const callAPI = async (key, url, firstDate) => {
   try {
     const response = await fetch(url)
-    let data = await response.json()
-    data.lastSyncedAt = Date.now()
-    localStorage.setItem(key, JSON.stringify(data))
+    let apiData = await response.json()
+    let data = []
+    apiData.data.every((element) => {
+      data.push(element)
+      if (element.date === firstDate) return false
+      else return true
+    })
+    const cacheData = {
+      data: data,
+      lastSyncedAt: Date.now()
+    }
+
+    localStorage.setItem(key, JSON.stringify(cacheData))
   } catch (err) {
     console.log(err)
   }
 }
 
-function App() {
+const getCAS = () => {
   let cas = localStorage.getItem('cas')
 
   if (!cas) {
@@ -43,17 +55,21 @@ function App() {
       }
     }
   }
+  let { transactions = [] } = cas || {}
+  transactions.sort(byDateDesc)
 
-  const mfNames = Array.from(new Set(cas?.transactions.map(({ mfName }) => mfName)))
+  const mfNames = Array.from(new Set(transactions.map(({ mfName }) => mfName)))
 
   mfNames.forEach(mfName => {
     const url = getURL(mfName)
+    const firstMfTransaction = transactions.filter(({ mfName: mfN }) => mfN === mfName).pop()
+    const firstDate = new Date(firstMfTransaction.date).toLocaleDateString("es-CL")
 
     if (url) {
       let item = localStorage.getItem(mfName)
 
       if (!item) {
-        callAPI(mfName, url)
+        callAPI(mfName, url, firstDate)
       }
       else {
         item = JSON.parse(item)
@@ -64,6 +80,10 @@ function App() {
       }
     }
   })
+}
+
+function App() {
+  const cas = getCAS()
 
   return (
     <BrowserRouter>

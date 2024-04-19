@@ -93,7 +93,7 @@ const Portfolio = ({ cas }) => {
       data={portfolio}
       columns={columns}
       keyColumn="mfName"
-      showTotal
+      showTotalRow
       collapseable
       collapseableColumns={collapseableColumns}
       collapseableDataKey="existingFunds"

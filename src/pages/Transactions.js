@@ -10,7 +10,7 @@ const Transactions = ({ cas }) => {
   const columns = [
     {
       label: "Date",
-      getData: rowData => new Date(rowData.date).toLocaleDateString('en-IN',{ year:"numeric", month:"short", day:"2-digit"}),
+      getData: rowData => new Date(rowData.date).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"}),
       getTotalData: () => "Total"
     },
     {
