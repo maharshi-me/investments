@@ -1,3 +1,5 @@
+import { Paper } from '@mui/material'
+
 import DataTable from 'components/DataTable'
 import getPortfolio from 'utils/functions/getPortfolio'
 import getRupeesString from 'utils/functions/getRupeesString'
@@ -89,15 +91,17 @@ const Portfolio = ({ cas }) => {
   ]
 
   return (
-    <DataTable
-      data={portfolio}
-      columns={columns}
-      keyColumn="mfName"
-      showTotalRow
-      collapseable
-      collapseableColumns={collapseableColumns}
-      collapseableDataKey="existingFunds"
-    />
+    <Paper sx={{ p: 3 }}>
+      <DataTable
+        data={portfolio}
+        columns={columns}
+        keyColumn="mfName"
+        showTotalRow
+        collapseable
+        collapseableColumns={collapseableColumns}
+        collapseableDataKey="existingFunds"
+      />
+    </Paper>
   )
 }
 

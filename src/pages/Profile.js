@@ -1,8 +1,8 @@
-import { Grid, Paper, Typography } from '@mui/material'
+import { Grid, Paper } from '@mui/material'
 import DataTable from 'components/DataTable'
 
 const Profile = ({ cas }) => {
-  const { holder = {}, meta = {} } = cas || {}
+  const { holder = {} } = cas || {}
 
   const data = [
     {
@@ -23,21 +23,6 @@ const Profile = ({ cas }) => {
     }
   ]
 
-  const importData = [
-    {
-      label: "Exported at",
-      value: new Date(meta.exportedAt).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit"})
-    },
-    {
-      label: "Statement from date",
-      value: new Date(meta.from).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
-    },
-    {
-      label: "Statement to date",
-      value: new Date(meta.to).toLocaleDateString('en-IN', { year:"numeric", month:"short", day:"2-digit"})
-    }
-  ]
-
   const columns = [
     {
       label: null,
@@ -52,11 +37,10 @@ const Profile = ({ cas }) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12} md={6} lg={6}>
-        <DataTable noBorders data={data} keyColumn='label' columns={columns} title="Profile Details" />
-      </Grid>
-      <Grid item xs={12} md={6} lg={6}>
-        <DataTable noBorders data={importData} keyColumn='label' columns={columns} title="Statement Details" />
+      <Grid item xs={12}>
+        <Paper sx={{ p: 3 }}>
+          <DataTable noBorders data={data} keyColumn='label' columns={columns} title="Profile Details" />
+        </Paper>
       </Grid>
     </Grid>
   )

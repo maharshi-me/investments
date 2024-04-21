@@ -1,3 +1,5 @@
+import { Paper } from '@mui/material'
+
 import byDateDesc from 'utils/functions/byDateDesc'
 import DataTable from 'components/DataTable'
 import getRupeesString from 'utils/functions/getRupeesString'
@@ -45,11 +47,13 @@ const Transactions = ({ cas }) => {
   ]
 
   return (
-    <DataTable
-      data={transactions}
-      columns={columns}
-      showTotal
-    />
+    <Paper sx={{ p: 3 }}>
+      <DataTable
+        data={transactions}
+        columns={columns}
+        showTotal
+      />
+    </Paper>
   )
 }
 

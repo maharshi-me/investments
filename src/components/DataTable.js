@@ -1,5 +1,4 @@
 import {
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -25,7 +24,7 @@ const DataTable = ({
   collapseableDataKey = '',
   title = null
 }) => (
-  <Paper sx={{ p: 3 }}>
+  <>
     {title &&
       <Typography variant="h6" color="primary">
         {title}
@@ -72,7 +71,7 @@ const DataTable = ({
         }
       </TableBody>
     </Table>
-  </Paper>
+  </>
 )
 
 function Row(props) {
