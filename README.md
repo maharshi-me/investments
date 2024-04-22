@@ -1,6 +1,6 @@
 # Investments Tracker
 
-This is a WEB UI for tracking CAMS and KFintech mutual fund investments. It can read your mutual fund transactions from Consolidated Account Statement and stores them in localstorage. Price chart will be fetched from https://www.mfapi.in/ and cached in localstorage. This re fetches once or twice a day.
+This is a WEB UI for tracking CAMS and KFintech mutual fund investments made with React. It can read your mutual fund transactions from Consolidated Account Statement and stores them in localstorage. Price chart will be fetched from https://www.mfapi.in/ and cached in localstorage. This re fetches once or twice a day.
 
 # Features
 - Performance chart over time (All, 1M, 3M, 6M 1Y)
