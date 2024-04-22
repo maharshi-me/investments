@@ -29,7 +29,53 @@ const SchemeSelect = ({ constant }) => {
         {data.selectedSchemeCode
         ?
           <>
-            {data.searchData?.find(d => d.schemeCode === data.selectedSchemeCode).schemeName || data.selectedSchemeCode}
+            <div style={{textAlign: 'start'}}>
+              <span style={{fontWeight:"bold"}}>
+                Scheme Code :{' '}
+              </span>
+              <span>
+                {data.searchData?.find(d => d.schemeCode === data.selectedSchemeCode).schemeName || data.selectedSchemeCode}
+              </span>
+            </div>
+            {data.type
+            ?
+              <div style={{textAlign: 'start'}}>
+                <span style={{fontWeight:"bold"}}>
+                  Scheme Type :{' '}
+                </span>
+                <span>
+                  {data.type}
+                </span>
+              </div>
+            :
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label-2">Type</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label-2"
+                  id="demo-simple-select-2"
+                  onChange={(e) => {
+                    const selectedValue = e.target.value
+                    let OldConstantsData = localStorage.getItem('constants_' + key)
+
+                    if (OldConstantsData) {
+                      OldConstantsData = JSON.parse(OldConstantsData)
+                    }
+
+                    const constantsData = {
+                      ...OldConstantsData,
+                      type: selectedValue
+                    }
+
+                    localStorage.setItem('constants_' + key, JSON.stringify(constantsData))
+                    window.location.reload()
+                  }}
+                  label="Type"
+                >
+                  <MenuItem value="Equity">Equity</MenuItem>
+                  <MenuItem value="Debt">Debt</MenuItem>
+                </Select>
+              </FormControl>
+            }
             <div style={{ textAlign: 'end' }}>
               <IconButton
                 sx={{ mt: 2 }}
@@ -84,11 +130,11 @@ const SchemeSelect = ({ constant }) => {
                 </div>
               </>
             :
-              <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Code</InputLabel>
+              <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+                <InputLabel id="demo-simple-select-standard-label">Code</InputLabel>
                 <Select
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
+                  labelId="demo-simple-select-standard-label"
+                  id="demo-simple-select-standard"
                   onChange={(e) => {
                     const selectedValue = e.target.value
                     let OldConstantsData = localStorage.getItem('constants_' + key)
@@ -105,7 +151,7 @@ const SchemeSelect = ({ constant }) => {
                     localStorage.setItem('constants_' + key, JSON.stringify(constantsData))
                     window.location.reload()
                   }}
-                  label="Age"
+                  label="Code"
                 >
                   {data.searchData.map(search => (
                     <MenuItem value={search.schemeCode}>({search.schemeCode}) {search.schemeName}</MenuItem>

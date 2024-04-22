@@ -1,7 +1,6 @@
-import { getColor } from "constants"
-
 import byDateAsc from 'utils/functions/byDateAsc'
 import byTotalCostDesc from "utils/functions/byTotalCostDesc"
+import stringToColour from "utils/functions/stringToColour"
 
 const getLatestPrice = (mfname) => {
   let data = localStorage.getItem(mfname)
@@ -79,7 +78,7 @@ const getPortfolio = transactions => {
     o.currentUnits = units > 0.00001 ? (units / 1000) : 0
     o.currentValue = o.latestPrice ? (o.currentUnits * o.latestPrice) : 0
     o.profit = o.currentValue - o.currentInvested
-    o.color = getColor(o.mfName)
+    o.color = stringToColour(o.mfName)
   })
 
   out.forEach(o => o.percentage = (o.currentInvested / out.reduce((a, b) => a + b.currentInvested, 0)) * 100)

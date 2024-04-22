@@ -1,13 +1,28 @@
-import { getAssetColor, getAssetType } from "constants"
-
 import getPortfolio from 'utils/functions/getPortfolio'
+
+const ASSET_TYPE_COLORS = Object.freeze({
+  Equity: '#e81e63',
+  Debt: '#00bcd4'
+})
 
 const getTypePortfolio = transactions => {
   const portfolio = getPortfolio(transactions)
   let out = []
 
   portfolio.forEach(p => {
-    const i = out.findIndex(o => o.type === getAssetType(p.mfName))
+    let OldConstantsData = localStorage.getItem('constants_' + p.mfName)
+
+    if (OldConstantsData) {
+      OldConstantsData = JSON.parse(OldConstantsData)
+    }
+
+    let type = null
+
+    if (OldConstantsData?.type) {
+      type = OldConstantsData.type
+    }
+
+    const i = out.findIndex(o => o.type === type)
 
     if (i >= 0) {
       out[i].currentInvested += p.currentInvested
@@ -15,9 +30,9 @@ const getTypePortfolio = transactions => {
     }
     else {
       out.push({
-        type: getAssetType(p.mfName),
+        type,
         currentInvested: p.currentInvested,
-        color: getAssetColor(p.mfName),
+        color: ASSET_TYPE_COLORS[type],
         currentValue: p.currentValue
       })
     }

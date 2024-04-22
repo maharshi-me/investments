@@ -7,7 +7,6 @@ import Layout from "Layout"
 import Portfolio from "pages/Portfolio"
 import Profile from "pages/Profile"
 import Transactions from 'pages/Transactions'
-import { getURL } from "constants";
 
 import byDateDesc from 'utils/functions/byDateDesc'
 
@@ -95,22 +94,19 @@ const getCAS = () => {
 
   mfNames.forEach((mfName) => {
     const mfNameFull = transactions.find(({ mfName: mName }) => mName === mfName).mfNameFull
-    const url = getURL(mfName)
     const firstMfTransaction = transactions.filter(({ mfName: mfN }) => mfN === mfName).pop()
     const firstDate = new Date(firstMfTransaction.date).toLocaleDateString("es-CL")
 
-    if (url) {
-      let item = localStorage.getItem(mfName)
+    let item = localStorage.getItem(mfName)
 
-      if (!item) {
+    if (!item) {
+      callAPI(mfName, mfNameFull, firstDate)
+    }
+    else {
+      item = JSON.parse(item)
+
+      if (((Date.now() - item.lastSyncedAt) / 1000) > 10000) {
         callAPI(mfName, mfNameFull, firstDate)
-      }
-      else {
-        item = JSON.parse(item)
-
-        if (((Date.now() - item.lastSyncedAt) / 1000) > 10000) {
-          callAPI(mfName, mfNameFull, firstDate)
-        }
       }
     }
   })
