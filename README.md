@@ -1,6 +1,6 @@
 # Investments Tracker
 
-WEB UI for tracking CAMS and KFintech mutual fund investments made with React. It can read your mutual fund transactions from Consolidated Account Statement and stores them in localstorage. Price chart will be fetched from https://www.mfapi.in/ and cached in localstorage. This re fetches once or twice a day.
+WEB UI for tracking CAMS and KFintech mutual fund investments made with React. It can read your mutual fund transactions from Consolidated Account Statement and stores them in localstorage. Prices will be fetched from https://www.mfapi.in/ and cached in localstorage. They re fetch once or twice a day.
 
 ![screencapture-localhost-3005-2024-06-09-00_31_11](https://github.com/maharshi-me/investments/assets/73870493/7aa3a656-eac5-4c36-8433-9765a6f8b23b)
 
