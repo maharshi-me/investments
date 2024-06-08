@@ -8,6 +8,8 @@ import CustomNavTab from 'components/CustomNavTab'
 import CustomPieChart from 'components/CustomPieChart'
 import getInvestments from 'utils/functions/getInvestments'
 import getPortfolio from 'utils/functions/getPortfolio'
+import getRupeesString from 'utils/functions/getRupeesString'
+import getSummary from 'utils/functions/getSummary'
 import getTypePortfolio from 'utils/functions/getTypePortfolio'
 
 const getYearlyBarChart = transactions => {
@@ -124,6 +126,7 @@ const Dashboard = ({ cas }) => {
   let { transactions = [] } = cas || {}
 
   const investments = getInvestments(transactions)
+  const { totalValue, invested, currentProfit } = getSummary(transactions)
 
   const getAdditionalPerformanceChartProps = v => {
     switch (v) {
@@ -206,6 +209,36 @@ const Dashboard = ({ cas }) => {
 
   return (
     <Grid container spacing={2}>
+      <Grid item xs={6} md={6} lg={4}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ pb: 1 }} color="primary">
+            Total Value
+          </Typography>
+          <Typography variant="h4" color="#0f0f0f">
+            {getRupeesString(totalValue)}
+          </Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={6} md={6} lg={4}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ pb: 1 }} color="primary">
+            Invested
+          </Typography>
+          <Typography variant="h4" color="#0f0f0f">
+            {getRupeesString(invested)}
+          </Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={6} md={6} lg={4}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ pb: 1 }} color="primary">
+            Curr. Returns
+          </Typography>
+          <Typography variant="h4" color={(currentProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
+            {getRupeesString(currentProfit)}
+          </Typography>
+        </Paper>
+      </Grid>
       <Grid item xs={12} md={12} lg={6}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" color="primary">
