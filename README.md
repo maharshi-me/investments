@@ -26,7 +26,7 @@ Run `npm install` in project path
   ```
 - In the project directory, you can run:<br>
   `npm start`
-- Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Open [http://localhost:3005](http://localhost:3005) to view it in your browser.
 - Go to "Cache" tab. Scheme Codes shuould automatically populate from API. If not, you can select them from dropdown or fill them manually.
   - You can get scheme codes from here - https://www.mfapi.in/
 - Select Scheme Type for each fund (Equity or Debt)
