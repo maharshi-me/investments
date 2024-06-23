@@ -6,7 +6,7 @@ import CustomAreaChart from 'components/CustomAreaChart'
 import CustomBarChart from 'components/CustomBarChart'
 import CustomNavTab from 'components/CustomNavTab'
 import CustomPieChart from 'components/CustomPieChart'
-import getInvestments from 'utils/functions/getInvestments'
+import getCachedInvestmentsValue from 'utils/functions/getInvestmentsValue'
 import getPortfolio from 'utils/functions/getPortfolio'
 import getRupeesString from 'utils/functions/getRupeesString'
 import getSummary from 'utils/functions/getSummary'
@@ -94,28 +94,28 @@ const getMonthInvestments = investments => {
   let day = new Date()
   day.setMonth(day.getMonth() - 1)
 
-  return investments.filter(i => i.dateObj >= day)
+  return investments.filter(i => new Date(i.dateObj) >= day)
 }
 
 const getThreeMonthsInvestments = investments => {
   let day = new Date()
   day.setMonth(day.getMonth() - 3)
 
-  return investments.filter(i => i.dateObj >= day)
+  return investments.filter(i => new Date(i.dateObj) >= day)
 }
 
 const getSixMonthsInvestments = investments => {
   let day = new Date()
   day.setMonth(day.getMonth() - 6)
 
-  return investments.filter(i => i.dateObj >= day)
+  return investments.filter(i => new Date(i.dateObj) >= day)
 }
 
 const getOneYearInvestments = investments => {
   let day = new Date()
   day.setFullYear(day.getFullYear() - 1)
 
-  return investments.filter(i => i.dateObj >= day)
+  return investments.filter(i => new Date(i.dateObj) >= day)
 }
 
 const Dashboard = ({ cas }) => {
@@ -125,38 +125,38 @@ const Dashboard = ({ cas }) => {
 
   let { transactions = [] } = cas || {}
 
-  const investments = getInvestments(transactions)
+  const investmentsValue = getCachedInvestmentsValue(transactions)
   const { totalValue, invested, currentProfit } = getSummary(transactions)
 
   const getAdditionalPerformanceChartProps = v => {
     switch (v) {
       case "All time":
         return {
-          data: investments
+          data: investmentsValue
         }
       case "1 month":
         return {
-          data: getMonthInvestments(investments),
+          data: getMonthInvestments(investmentsValue),
           dataMin: "auto"
         }
       case "3 months":
         return {
-          data: getThreeMonthsInvestments(investments),
+          data: getThreeMonthsInvestments(investmentsValue),
           dataMin: "auto"
         }
       case "6 months":
         return {
-          data: getSixMonthsInvestments(investments),
+          data: getSixMonthsInvestments(investmentsValue),
           dataMin: "auto"
         }
       case "1 year":
         return {
-          data: getOneYearInvestments(investments),
+          data: getOneYearInvestments(investmentsValue),
           dataMin: "auto"
         }
       default:
         return {
-          data: investments
+          data: investmentsValue
         }
     }
   }
@@ -249,7 +249,7 @@ const Dashboard = ({ cas }) => {
             value={performanceValue}
             setValue={setPerformanceValue}
           />
-          <CustomAreaChart key={performanceValue} dataKey="invested" nameKey="date" color="#00bcd4" {...getAdditionalPerformanceChartProps(performanceValue)} />
+          <CustomAreaChart key={performanceValue} dataKey="value" nameKey="date" color="#1976d2" {...getAdditionalPerformanceChartProps(performanceValue)} />
         </Paper>
       </Grid>
       <Grid item xs={12} md={6} lg={6}>

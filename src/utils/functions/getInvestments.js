@@ -1,27 +1,17 @@
 import byDateAsc from 'utils/functions/byDateAsc'
 
-function getAllDatesList(startDate, endDate) {
+function getAllDates(startDate, endDate) {
   const dates = []
+  const dateObjs = []
   let currentDate = new Date(startDate)
 
   while (currentDate <= endDate) {
     dates.push(currentDate.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'}))
+    dateObjs.push(new Date(currentDate))
     currentDate.setDate(currentDate.getDate() + 1)
   }
 
-  return dates
-}
-
-function getAllDateObjsList(startDate, endDate) {
-  const dates = []
-  let currentDate = new Date(startDate)
-
-  while (currentDate <= endDate) {
-    dates.push(new Date(currentDate))
-    currentDate.setDate(currentDate.getDate() + 1)
-  }
-
-  return dates
+  return [ dates, dateObjs ]
 }
 
 const getInvestments = transactions => {
@@ -31,8 +21,7 @@ const getInvestments = transactions => {
   let endDate = new Date()
   const startDate = ts.length > 0 ? new Date(ts[0].date) : endDate
 
-  let allDatesList = getAllDatesList(startDate, endDate)
-  let allDateObjsList = getAllDateObjsList(startDate, endDate)
+  const [ allDatesList, allDateObjsList ] = getAllDates(startDate, endDate)
 
   let data = [{
     date: allDatesList[0],
@@ -47,6 +36,7 @@ const getInvestments = transactions => {
 
     const transactionDateString = new Date(t.date).toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'})
 
+    // Fill empty transaction dates with previous invested value
     while(transactionDateString !== allDatesList[currentIndex]) {
       currentIndex += 1
 
