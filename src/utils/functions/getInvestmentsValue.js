@@ -79,26 +79,28 @@ const getInvestmentsValue = transactions => {
   }
 
   let investmentsData = []
-  const startDate = new Date(transactions[transactions.length - 1].date)
-  let endDate = new Date()
-  endDate.setDate(endDate.getDate() - 1)
-  let currentDate = new Date(startDate)
-
-  while (currentDate <= endDate) {
-    let dateName = currentDate.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'})
-    let dateObj = new Date(currentDate)
-    investmentsData.push({
-      date: dateName,
-      dateObj: dateObj,
-      value: 0
-    })
-    currentDate.setDate(currentDate.getDate() + 1)
-  }
-
-  for (let i = 0; i < mfItems.length; i++) {
-    for (let j = 0; j < mfItems[i].dates.length; j++) {
-      let dateItem = investmentsData.find(k => k.date === mfItems[i].dates[j].date)
-      dateItem.value = dateItem.value + mfItems[i].dates[j].value
+  if (transactions.length > 0) {
+    const startDate = new Date(transactions[transactions.length - 1].date)
+    let endDate = new Date()
+    endDate.setDate(endDate.getDate() - 1)
+    let currentDate = new Date(startDate)
+  
+    while (currentDate <= endDate) {
+      let dateName = currentDate.toLocaleDateString('en-IN',{ year:"numeric", month:"short", day: '2-digit'})
+      let dateObj = new Date(currentDate)
+      investmentsData.push({
+        date: dateName,
+        dateObj: dateObj,
+        value: 0
+      })
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+  
+    for (let i = 0; i < mfItems.length; i++) {
+      for (let j = 0; j < mfItems[i].dates.length; j++) {
+        let dateItem = investmentsData.find(k => k.date === mfItems[i].dates[j].date)
+        dateItem.value = dateItem.value + mfItems[i].dates[j].value
+      }
     }
   }
 
@@ -113,7 +115,7 @@ const getCachedInvestmentsValue = transactions => {
       data: getInvestmentsValue(transactions)
     }
 
-    if (investmentsValueObj) {
+    if (investmentsValueObj.data.length) {
       investmentsValueObj.lastSyncedAt = Date.now()
       localStorage.setItem('investments-value', JSON.stringify(investmentsValueObj))
     }
@@ -126,7 +128,7 @@ const getCachedInvestmentsValue = transactions => {
         data: getInvestmentsValue(transactions)
       }
 
-      if (investmentsValueObj) {
+      if (investmentsValueObj.data.length) {
         investmentsValueObj.lastSyncedAt = Date.now()
         localStorage.setItem('investments-value', JSON.stringify(investmentsValueObj))
       }
