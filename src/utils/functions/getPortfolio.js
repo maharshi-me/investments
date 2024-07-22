@@ -30,15 +30,17 @@ const getPortfolio = transactions => {
         })
       }
       else {
-        let units = transaction.units * 1000
+        let units = Math.round(transaction.units * 1000)
 
         while (units > 0) {
           if (out[i].existingFunds[0].units <= units) {
             units -= out[i].existingFunds[0].units
+            out[i].realisedProfit += (transaction.price - out[i].existingFunds[0].price / 10000) * (out[i].existingFunds[0].units / 1000)
             out[i].existingFunds[0].units = 0
           }
           else {
             out[i].existingFunds[0].units -= units
+            out[i].realisedProfit += (transaction.price - out[i].existingFunds[0].price / 10000) * (units / 1000)
             units = 0
           }
           if (out[i].existingFunds[0].units === 0) {
@@ -55,7 +57,8 @@ const getPortfolio = transactions => {
           price: transaction.price * 10000,
           units: transaction.units * 1000,
           date: new Date(transaction.date)
-        } ]
+        } ],
+        realisedProfit: 0
       })
     }
   })

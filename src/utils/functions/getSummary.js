@@ -15,11 +15,17 @@ const getSummary = transactions => {
     return res + item.profit
   }, 0)
 
+  const realisedProfit = portfolio.reduce((res, item) => {
+    return res + item.realisedProfit
+  }, 0)
+
+  const allTimeProfit = currentProfit + realisedProfit
+
 
   return {
     totalValue,
     invested,
-    currentProfit
+    allTimeProfit
   }
 }
 

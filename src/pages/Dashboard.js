@@ -126,7 +126,7 @@ const Dashboard = ({ cas }) => {
   let { transactions = [] } = cas || {}
 
   const investmentsValue = getCachedInvestmentsValue(transactions)
-  const { totalValue, invested, currentProfit } = getSummary(transactions)
+  const { totalValue, invested, allTimeProfit } = getSummary(transactions)
 
   const getAdditionalPerformanceChartProps = v => {
     switch (v) {
@@ -232,10 +232,10 @@ const Dashboard = ({ cas }) => {
       <Grid item xs={6} md={6} lg={4}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ pb: 1 }} color="primary">
-            Curr. Returns
+            All-time Returns
           </Typography>
-          <Typography variant="h4" color={(currentProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
-            {getRupeesString(currentProfit)}
+          <Typography variant="h4" color={(allTimeProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
+            {getRupeesString(allTimeProfit)}
           </Typography>
         </Paper>
       </Grid>

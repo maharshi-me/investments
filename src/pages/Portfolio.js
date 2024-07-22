@@ -21,12 +21,12 @@ const Portfolio = ({ cas }) => {
       align: "right"
     },
     {
-      label: "Avg. Cost Price",
+      label: "Average Cost Price",
       getData: rowData => rowData.currentInvested ? (rowData.currentInvested / rowData.currentUnits).toFixed(4) : "-",
       align: "right"
     },
     {
-      label: "Curr. Price",
+      label: "Current Price",
       getData: rowData => rowData.latestPrice ? rowData.latestPrice.toFixed(4) : "-",
       align: "right"
     },
@@ -37,11 +37,18 @@ const Portfolio = ({ cas }) => {
       getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.currentInvested, 0))
     },
     {
-      label: "Curr. Returns",
+      label: "Current Returns",
       getData: rowData => rowData.profit ? getRupeesString(rowData.profit) : "-",
       sx: rowData => rowData.profit ? ({ color: rowData.profit > 0 ? '#2e7d32' : '#d32f2f' }) : null,
       align: "right",
       getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.profit, 0))
+    },
+    {
+      label: "Realised Returns",
+      getData: rowData => rowData.realisedProfit ? getRupeesString(rowData.realisedProfit) : "-",
+      sx: rowData => rowData.realisedProfit ? ({ color: rowData.realisedProfit > 0 ? '#2e7d32' : '#d32f2f' }) : null,
+      align: "right",
+      getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.realisedProfit, 0))
     },
     {
       label: "Value",
