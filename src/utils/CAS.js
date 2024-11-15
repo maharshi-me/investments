@@ -78,11 +78,6 @@ const filterText = text => {
 
   filteredLines = filterLinesWithText(filteredLines)
 
-  filteredLines.forEach((line, index) => {
-    if (line.includes("Registrar :")) {
-      filteredLines[index] = line.split('-').slice(1).join('-').trim()
-    }
-  })
 
   filteredLines.forEach((line, index) => {
     if (line.includes("( Non - Demat )")) {
@@ -91,14 +86,14 @@ const filterText = text => {
   })
 
   filteredLines.forEach((line, index) => {
-    if (line.includes("Registrar :")) {
-      filteredLines[index] = line.split('-').slice(0, -1).join('-').trim()
+    if (line.includes("ISIN :")) {
+      filteredLines[index] = line.split('-')[1]
     }
   })
 
   filteredLines.forEach((line, index) => {
     if (line.includes("formerly") || line.includes("Formerly")) {
-      filteredLines[index] = line.split('(').slice(0, -1).join('').trim()
+      filteredLines[index] = line.split('(')[0].trim()
     }
   })
 
@@ -153,6 +148,36 @@ const filterText = text => {
   })
 
   newFilteredLines = excludeLinesThatInclude(newFilteredLines, 'Closing Unit Balance')
+
+  // bug in pdf
+  // If current line starts with Date
+    // Check if next line exists and it is date
+      // If it is date then dont do anything
+      // else then check if next to next line exists and if it starts with Folio No and is
+        // If yes then dont do anything
+        // else append next line's content to current line with space
+
+  let retry = true
+  while(retry) {
+    retry = false
+    let linesToDelete = []
+
+    newFilteredLines.forEach((line, index) => {
+      if (index > 3 && (line.length > 11) && (line[2] === '-') && (line[6] === '-') && (line[11] === ' ') && (newFilteredLines[index + 1])) {
+        if ((newFilteredLines[index + 1].length > 11) && (newFilteredLines[index + 1][2] === '-') && (newFilteredLines[index + 1][6] === '-') && (newFilteredLines[index + 1][11] === ' ')) {
+        }
+        else {
+          if (!(newFilteredLines[index + 2] && isLineStartsWith(newFilteredLines[index + 2], 'Folio No: '))) {
+            retry = true
+            newFilteredLines[index] = newFilteredLines[index] + ' ' + newFilteredLines[index + 1]
+            linesToDelete.push(index + 1)
+          }
+        }
+      }
+    })
+
+    newFilteredLines = newFilteredLines.filter((v, index) => !(linesToDelete.includes(index)))
+  }
 
   return newFilteredLines.join('\n')
 }
