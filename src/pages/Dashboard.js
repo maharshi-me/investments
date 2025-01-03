@@ -209,33 +209,43 @@ const Dashboard = ({ cas }) => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={6} md={6} lg={4}>
+      <Grid item xs={6} md={6} lg={3}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ pb: 1 }} color="primary">
             Total Value
           </Typography>
-          <Typography variant="h4" color="#0f0f0f">
+          <Typography variant="h4">
             {getRupeesString(totalValue)}
           </Typography>
         </Paper>
       </Grid>
-      <Grid item xs={6} md={6} lg={4}>
+      <Grid item xs={6} md={6} lg={3}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ pb: 1 }} color="primary">
             Invested
           </Typography>
-          <Typography variant="h4" color="#0f0f0f">
+          <Typography variant="h4">
             {getRupeesString(invested)}
           </Typography>
         </Paper>
       </Grid>
-      <Grid item xs={6} md={6} lg={4}>
+      <Grid item xs={6} md={6} lg={3}>
         <Paper sx={{ p: 3 }}>
           <Typography variant="h6" sx={{ pb: 1 }} color="primary">
             All-time Returns
           </Typography>
           <Typography variant="h4" color={(allTimeProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
             {getRupeesString(allTimeProfit)}
+          </Typography>
+        </Paper>
+      </Grid>
+      <Grid item xs={6} md={6} lg={3}>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" sx={{ pb: 1 }} color="primary">
+            Monthly Income if retired
+          </Typography>
+          <Typography variant="h4" color={(allTimeProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
+            {getRupeesString(totalValue / 50 / 12)}
           </Typography>
         </Paper>
       </Grid>

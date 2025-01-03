@@ -1,15 +1,28 @@
-import { Paper } from '@mui/material'
+import { Paper, Checkbox } from '@mui/material'
 
 import DataTable from 'components/DataTable'
+import { useState } from 'react'
 import getPortfolio from 'utils/functions/getPortfolio'
 import getRupeesString from 'utils/functions/getRupeesString'
 
+const getTypeFromMFName = (mfName) => {
+  let OldConstantsData = localStorage.getItem('constants_' + mfName)
+
+  if (OldConstantsData) {
+    return JSON.parse(OldConstantsData)?.type || null
+  }
+
+  return null
+}
+
 const Portfolio = ({ cas }) => {
+  const [ hideZeroHoldings, setHideZeroHoldings ] = useState(true)
+
   const { transactions = [] } = cas || {}
 
   const portfolio = getPortfolio(transactions)
 
-  const columns = [
+  const columns = [...[
     {
       label: "Scheme Name",
       getData: rowData => rowData.mfName,
@@ -42,7 +55,15 @@ const Portfolio = ({ cas }) => {
       sx: rowData => rowData.profit ? ({ color: rowData.profit > 0 ? '#2e7d32' : '#d32f2f' }) : null,
       align: "right",
       getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.profit, 0))
-    },
+    }
+  ], ...(hideZeroHoldings ?  [
+    {
+      label: "Value",
+      getData: rowData => rowData.currentValue ? getRupeesString(rowData.currentValue) : '-',
+      align: "right",
+      getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.currentValue, 0))
+    }
+  ] : [
     {
       label: "Realised Returns",
       getData: rowData => rowData.realisedProfit ? getRupeesString(rowData.realisedProfit) : "-",
@@ -56,6 +77,7 @@ const Portfolio = ({ cas }) => {
       align: "right",
       getTotalData: data => getRupeesString(data.reduce((a, b) => a + b.currentValue, 0))
     }
+  ])
   ]
 
   const collapseableColumns = [
@@ -97,16 +119,39 @@ const Portfolio = ({ cas }) => {
     }
   ]
 
+  const currentDate = new Date()
+
+  const oneYearAgo = new Date()
+  oneYearAgo.setFullYear(currentDate.getFullYear() - 1)
+
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(currentDate.getFullYear() - 3)
+
   return (
     <Paper sx={{ p: 3 }}>
+      <Checkbox checked={hideZeroHoldings} size='small' onChange={() => setHideZeroHoldings(!hideZeroHoldings)} />
+      Hide zero holdings
       <DataTable
-        data={portfolio}
+        data={hideZeroHoldings ? portfolio.filter(p => p.currentInvested > 0) : portfolio}
         columns={columns}
         keyColumn="mfName"
         showTotalRow
         collapseable
         collapseableColumns={collapseableColumns}
         collapseableDataKey="existingFunds"
+        showCollapseableRowBackgroundColor={(collapsibleRowData, rowData) => {
+          let type = getTypeFromMFName(rowData.mfName)
+
+          if (type === 'Debt') {
+            return collapsibleRowData.date < threeYearsAgo
+          }
+
+          if (rowData.mfName.includes('ELSS') || rowData.mfName.includes('Tax')) {
+            return collapsibleRowData.date < threeYearsAgo
+          }
+
+          return collapsibleRowData.date < oneYearAgo
+        }}
       />
     </Paper>
   )

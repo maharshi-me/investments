@@ -22,6 +22,7 @@ const DataTable = ({
   collapseable = false,
   collapseableColumns = [],
   collapseableDataKey = '',
+  showCollapseableRowBackgroundColor,
   title = null
 }) => (
   <>
@@ -57,6 +58,7 @@ const DataTable = ({
             collapseable={collapseable}
             collapseableColumns={collapseableColumns}
             collapseableDataKey={collapseableDataKey}
+            showCollapseableRowBackgroundColor={showCollapseableRowBackgroundColor}
           />
         ))}
         {showTotalRow &&
@@ -75,7 +77,7 @@ const DataTable = ({
 )
 
 function Row(props) {
-  const { d, columns, noBorders, collapseable, collapseableColumns, collapseableDataKey } = props;
+  const { d, columns, noBorders, collapseable, collapseableColumns, collapseableDataKey, showCollapseableRowBackgroundColor } = props;
   const [open, setOpen] = useState(false);
 
   return (
@@ -136,7 +138,14 @@ function Row(props) {
                   </TableHead>
                   <TableBody>
                     {d[collapseableDataKey].map (cd =>
-                      <TableRow>
+                      <TableRow
+                        sx={showCollapseableRowBackgroundColor(cd, d) ? {
+                          backgroundColor: (theme) =>
+                            theme.palette.mode === 'light'
+                              ? theme.palette.grey[300]
+                              : theme.palette.grey[800]
+                        } : {}}
+                      >
                         <TableCell></TableCell>
                         {collapseableColumns.map(c =>
                           <TableCell

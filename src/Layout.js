@@ -68,7 +68,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 )
 
-const defaultTheme = createTheme()
+const defaultTheme = createTheme({
+  palette: {
+    mode: 'dark',
+  }
+})
 
 const MenuItem = ({ icon, path, label }) => {
   const navigate = useNavigate()
@@ -167,7 +171,7 @@ const Layout = () => {
             backgroundColor: (theme) =>
               theme.palette.mode === 'light'
                 ? theme.palette.grey[100]
-                : theme.palette.grey[900],
+                : theme.palette.black,
             flexGrow: 1,
             height: '100vh',
             overflow: 'auto',
