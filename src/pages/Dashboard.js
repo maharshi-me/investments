@@ -245,7 +245,7 @@ const Dashboard = ({ cas }) => {
             Monthly Income if retired
           </Typography>
           <Typography variant="h4" color={(allTimeProfit >= 0) ? "#2e7d32" : "#d32f2f"}>
-            {getRupeesString(totalValue / 50 / 12)}
+            {getRupeesString(totalValue / 25 / 12)}
           </Typography>
         </Paper>
       </Grid>
