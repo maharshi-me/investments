@@ -13,7 +13,7 @@ export function NavMain({
 }: {
   items: {
     title: string
-    icon?: LucideIcon
+    icon: LucideIcon
     url: string
   }[]
 }) {
