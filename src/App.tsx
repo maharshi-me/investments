@@ -3,6 +3,8 @@ import Settings from "@/app/Settings"
 import Dashboard from "@/app/Dashboard"
 import { Routes, Route } from 'react-router-dom';
 import BaseLayout from "@/layouts/BaseLayout";
+import Transactions from "@/app/Transactions";
+import { Toaster } from "@/components/ui/toaster"
 
 function App() {
 
@@ -12,8 +14,10 @@ function App() {
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/transactions" element={<Transactions />} />
         </Routes>
       </BaseLayout>
+      <Toaster />
     </ThemeProvider>
   )
 }
