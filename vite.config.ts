@@ -8,6 +8,7 @@ export default defineConfig({
     port: 3001,
   },
   plugins: [react()],
+  base: "/investments/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

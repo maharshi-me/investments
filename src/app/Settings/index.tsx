@@ -382,7 +382,7 @@ export default function SwitchDemo() {
     } catch (err: any) {
       if (err.name === 'PasswordException') {
         setIsPasswordProtected(true)
-        setPassword("FECPM2625L") // Set default password for protected files
+        setPassword("") // Set default password for protected files
       }
       URL.revokeObjectURL(blobUrl)
     }
