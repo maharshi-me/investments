@@ -10,333 +10,13 @@ import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { useNavigate } from "react-router-dom"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { InfoIcon } from "lucide-react"
+import { Trash2Icon } from "lucide-react"
+import { Loader2Icon } from "lucide-react"
+import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
-
-const textUtils = {
-  isText: (str: string) => str.trim().length > 0,
-  filterLinesWithText: (lines: string[]) => lines.filter(textUtils.isText),
-  excludeLinesThatInclude: (lines: string[], text: string) => lines.filter(line => !line.includes(text)),
-  excludeLinesThatStartWith: (lines: string[], text: string) => lines.filter(line => !line.startsWith(text)),
-}
-
-const getFilteredText = (text: string) => {
-  const lines = text.split('\n')
-
-  let filteredLines = textUtils.filterLinesWithText(lines)
-
-  filteredLines = textUtils.excludeLinesThatStartWith(filteredLines, 'Page')
-  filteredLines = textUtils.excludeLinesThatStartWith(filteredLines, 'Date Amount')
-  filteredLines = textUtils.excludeLinesThatStartWith(filteredLines, '(INR) (INR)')
-  filteredLines = textUtils.excludeLinesThatStartWith(filteredLines, 'PAN:')
-
-  filteredLines = filteredLines.filter((line, index) => {
-    // Keep the line if it's in position 0-2 OR if it doesn't match any of the first 3 lines
-    return index <= 2 || ![lines[0], lines[1], lines[2]].includes(line);
-  })
-
-  filteredLines.forEach((line, index) => {
-    if (line.startsWith('***')) {
-      filteredLines[index - 1] += " " + filteredLines[index]
-    }
-  })
-
-  filteredLines = textUtils.excludeLinesThatStartWith(filteredLines, "***")
-
-  let ci = filteredLines.findIndex(line => line.startsWith('Total')) + 2
-  let start = false
-  let started = true
-  let si
-
-  while (ci <= filteredLines.length - 1) {
-    if (start) {
-      if (filteredLines[ci].startsWith('Folio No:') && !filteredLines[ci + 1].includes('Folio No:')) {
-        start = false
-      }
-      else {
-        filteredLines[si] = filteredLines[si] + " " + filteredLines[ci]
-        filteredLines[ci] = ""
-      }
-    }
-    else {
-      if (filteredLines[ci].startsWith('Closing') || started) {
-        started = true
-        if (filteredLines[ci].includes('-')) {
-          start = true
-          si = ci
-          started = false
-        }
-      }
-    }
-    ci++
-  }
-
-  filteredLines = textUtils.filterLinesWithText(filteredLines)
-
-
-  filteredLines.forEach((line, index) => {
-    if (line.includes("( Non - Demat )")) {
-      filteredLines[index] = line.split("( Non - Demat )").join('').trim()
-    }
-  })
-
-  filteredLines.forEach((line, index) => {
-    if (line.includes("ISIN :")) {
-      filteredLines[index] = line.split('-')[1]
-    }
-  })
-
-  filteredLines.forEach((line, index) => {
-    if (line.includes("formerly") || line.includes("Formerly")) {
-      filteredLines[index] = line.split('(')[0].trim()
-    }
-  })
-
-  filteredLines = filteredLines.filter((line, index) => {
-    if (filteredLines[index - 1] && filteredLines[index + 1]) {
-      if (line.includes("Nominee 1:")) {
-        return false
-      }
-
-      if (filteredLines[index - 1].includes("Nominee 1:")) {
-        return false
-      }
-
-      if (filteredLines[index + 1].includes("Nominee 1:")) {
-        return false
-      }
-    }
-
-    return true
-  })
-
-  let newFilteredLines = []
-  let read = true
-
-  for (let i = 0; i < filteredLines.length; i++) {
-    if (read) {
-      newFilteredLines.push(filteredLines[i])
-    }
-
-    if (filteredLines[i].includes("Market Value on")) {
-      read = false
-    }
-
-    if (filteredLines[i].includes("Closing Unit Balance")) {
-      newFilteredLines.push(filteredLines[i])
-      read = true
-    }
-  }
-
-  newFilteredLines = textUtils.excludeLinesThatInclude(newFilteredLines, 'Market Value on')
-
-  newFilteredLines = newFilteredLines.filter((_line, index) => {
-    if (newFilteredLines[index - 1] && newFilteredLines[index + 2]) {
-      if (newFilteredLines[index - 1].includes('Closing Unit Balance')) {
-        if (newFilteredLines[index + 2].includes('Folio No: ')) {
-          return false
-        }
-      }
-    }
-
-    return true
-  })
-
-  newFilteredLines = textUtils.excludeLinesThatInclude(newFilteredLines, 'Closing Unit Balance')
-
-  // bug in pdf
-  // If current line starts with Date
-    // Check if next line exists and it is date
-      // If it is date then dont do anything
-      // else then check if next to next line exists and if it starts with Folio No and is
-        // If yes then dont do anything
-        // else append next line's content to current line with space
-
-  let retry = true
-  while(retry) {
-    retry = false
-    let linesToDelete = []
-
-    newFilteredLines.forEach((line, index) => {
-      if (index > 3 && (line.length > 11) && (line[2] === '-') && (line[6] === '-') && (line[11] === ' ') && (newFilteredLines[index + 1])) {
-        if ((newFilteredLines[index + 1].length > 11) && (newFilteredLines[index + 1][2] === '-') && (newFilteredLines[index + 1][6] === '-') && (newFilteredLines[index + 1][11] === ' ')) {
-        }
-        else {
-          if (!(newFilteredLines[index + 2] && newFilteredLines[index + 2].startsWith('Folio No: '))) {
-            retry = true
-            newFilteredLines[index] = newFilteredLines[index] + ' ' + newFilteredLines[index + 1]
-            linesToDelete.push(index + 1)
-          }
-        }
-      }
-    })
-
-    newFilteredLines = newFilteredLines.filter((v, index) => !(linesToDelete.includes(index)))
-  }
-
-  return newFilteredLines.join('\n')
-}
-
-const getJsonFromTxt = t => {
-  const lines = t.split('\n')
-
-  const obj = {
-    meta: getMeta(lines),
-    holder: getHolder(lines),
-    summary: getSummary(lines),
-    transactions: getTransactions(lines)
-  }
-
-  return obj
-}
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
-const strToCur = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 100) / 100
-const strToPrice = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 10000) / 10000
-const strToUnits = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 1000) / 1000
-
-const getIndexByStartingText = (lines, text) => lines.indexOf(lines.filter(line => line.startsWith(text))[0])
-
-const getTransactions = lines => {
-  const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
-
-  let filteredLines = lines.filter((_line, index) => index > PortfolioSummaryTotalRowIndex + 1)
-
-  filteredLines.forEach((line, index) => {
-    if (line.includes("*** Stamp Duty ***")) {
-      let stampDuty = strToPrice(line.split(" ")[1])
-      let amount = strToPrice(filteredLines[index - 1].split(" ")[1])
-
-      filteredLines[index - 1] = filteredLines[index - 1].split(" ")
-      filteredLines[index - 1][1] = (amount + stampDuty).toFixed(2)
-      filteredLines[index - 1] = filteredLines[index - 1].join(" ")
-    }
-  })
-
-  filteredLines = filteredLines.filter(line => !line.includes("***"))
-
-  filteredLines.forEach((line, index) => {
-    if (line.startsWith('Folio No:')) {
-      filteredLines[index - 1] += " " + line
-    }
-  })
-
-  filteredLines = filteredLines.filter(line => !line.startsWith('Folio No:'))
-
-  let mfNameFull, mfName, folio
-
-  filteredLines.forEach((line, index) => {
-    if (line.includes('Folio No:')) {
-      [ mfNameFull, folio ] = line.split(" Folio No: ")
-      mfName = mfNameFull.split('Direct').join('').split('DIRECT').join('').split('Growth').join('').split('GROWTH').join('')
-        .split('Plan').join('').split('PLAN').join('').split('Option').join('').split('OPTION').join('').trim()
-
-      while (mfName.charAt( mfName.length-1 ) === "-" || mfName.charAt( mfName.length-1 ) === " ") {
-        mfName = mfName.slice(0, -1)
-      }
-    }
-    else {
-      if (line[2] === '-') {
-        let amount, units
-        let amountStr = line.split(" ")[1]
-        let unitsStr = line.split(" ")[3]
-        let type = 'Investment'
-
-        if (amountStr[0] === '(') {
-          amount = strToCur(amountStr.slice(1, -1))
-          type = "Redemption"
-        }
-        else {
-          amount = strToCur(amountStr)
-        }
-
-        if (unitsStr[0] === '(') {
-          units = strToUnits(unitsStr.slice(1, -1))
-        }
-        else {
-          units = strToUnits(unitsStr)
-        }
-
-        folio = folio.split("/")[0].trim()
-
-        filteredLines[index] = {
-          mfNameFull,
-          mfName,
-          folio,
-          date: new Date(
-            Number(line.split(" ")[0].split("-")[2]),
-            MONTHS.indexOf(line.split(" ")[0].split("-")[1]),
-            Number(line.split(" ")[0].split("-")[0])
-          ),
-          amount,
-          type,
-          price: strToPrice(line.split(" ")[2]),
-          units,
-          content: line,
-          key: index
-        }
-      }
-    }
-  })
-
-  filteredLines = filteredLines.filter(line => typeof(line) !== 'string')
-
-  return filteredLines
-}
-
-const getSummary = lines => {
-  const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
-  const PortfolioSummaryRowIndex = getIndexByStartingText(lines, 'PORTFOLIO SUMMARY')
-
-  return {
-    invested: strToCur(lines[PortfolioSummaryTotalRowIndex].split(' ')[1]),
-    currentValue: strToCur(lines[PortfolioSummaryTotalRowIndex].split(' ')[2]),
-    mutualFunds: lines.slice(PortfolioSummaryRowIndex + 1, PortfolioSummaryTotalRowIndex).map(
-      mf => {
-        const mf_s = mf.trim().split(' ')
-
-        return {
-          fundHouse: mf_s.slice(0, mf_s.length - 2).join(' '),
-          invested: strToCur(mf_s[mf_s.length - 2]),
-          currentValue: strToCur(mf_s[mf_s.length - 1])
-        }
-      }
-    )
-  }
-}
-
-const getHolder = lines => {
-  const mobileNumberRowIndex = getIndexByStartingText(lines, 'Mobile')
-  const EmailIdRowIndex = getIndexByStartingText(lines, 'Email Id')
-
-  return {
-    name: lines[4],
-    email: lines[EmailIdRowIndex].split(' ')[2],
-    mobile: lines[mobileNumberRowIndex].split(' ')[1],
-    address: lines.slice(EmailIdRowIndex + 2, mobileNumberRowIndex).join('\n')
-  }
-}
-
-const getMeta = lines => {
-  const timestamp = lines[0].split(' ')[0].split('-')[1]
-  const from = lines[2].split(' ')[0].split('-')
-  const to = lines[2].split(' ')[2].split('-')
-
-  return {
-    exportedAt: new Date(
-      Number('20' + timestamp.substr(4,2)),
-      Number(timestamp.substr(2,2) - 1),
-      Number(timestamp.substr(0,2)),
-      Number(timestamp.substr(6,2)),
-      Number(timestamp.substr(8,2)),
-      Number(timestamp.substr(10,2))
-    ),
-    from: new Date(Number(from[2]), MONTHS.indexOf(from[1]), Number(from[0])),
-    to: new Date(Number(to[2]), MONTHS.indexOf(to[1]), Number(to[0]))
-  }
-}
-
 
 export default function SwitchDemo() {
   const { theme, setTheme } = useTheme()
@@ -347,9 +27,9 @@ export default function SwitchDemo() {
   const [json, setJson] = useState<any>(null)
   const [isPasswordProtected, setIsPasswordProtected] = useState(false)
   const [hasExistingData, setHasExistingData] = useState(false)
-  const [showSuccess, setShowSuccess] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const data = localStorage.getItem('investmentsData')
@@ -358,6 +38,7 @@ export default function SwitchDemo() {
       const parsedData = JSON.parse(data)
       setJson(parsedData)
     }
+    setIsLoading(false)
   }, [])
 
   const changeTheme = (checked: boolean) => {
@@ -444,7 +125,6 @@ export default function SwitchDemo() {
 
         setJson(json)
         localStorage.setItem('investmentsData', JSON.stringify(json))
-        setShowSuccess(true)
         setError("")
         URL.revokeObjectURL(blobUrl)
 
@@ -477,15 +157,18 @@ export default function SwitchDemo() {
         else {
           setError("An error occurred while processing the file.")
         }
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: err.name === 'PasswordException'
-            ? "Invalid password. Please try again."
-            : "An error occurred while processing the file.",
-        })
       }
     }
+  }
+
+  const handleClearData = () => {
+    localStorage.removeItem('investmentsData')
+    setJson(null)
+    setHasExistingData(false)
+    toast({
+      title: "Data cleared",
+      description: "All imported data has been removed.",
+    })
   }
 
   return (
@@ -494,14 +177,51 @@ export default function SwitchDemo() {
         <TypographySmall text="Theme" />
         <div className="p-4 pt-0" />
         <div className="flex items-center space-x-2">
+          <Label htmlFor="dark-mode">Light</Label>
           <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={changeTheme}/>
-          <Label htmlFor="dark-mode">Dark Mode</Label>
+          <Label htmlFor="dark-mode">Dark</Label>
         </div>
 
         <div className="mt-8">
           <div className="flex items-center justify-between max-w-sm">
-            <TypographySmall text="CAS Import" />
-            {hasExistingData && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center gap-1">
+                    <TypographySmall text="CAS Import" />
+                    <InfoIcon className="h-3 w-3" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-sm p-4">
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm font-medium">How to download CAS PDF:</p>
+                    <ol className="text-sm list-decimal ml-4 space-y-1">
+                      <li>Visit{" "}
+                        <a 
+                          href="https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline"
+                        >
+                          CAMS Online
+                        </a>
+                      </li>
+                      <li>Select "Detailed" statement type</li>
+                      <li>Set "From Date" to when you started investing</li>
+                      <li>Set "To Date" as today</li>
+                      <li>Choose "With Zero Balance Folios" in Folio Listing Type</li>
+                      <li>Enter your email and create a password</li>
+                      <li>Submit the form</li>
+                    </ol>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            {isLoading ? (
+              <div className="rounded-lg border p-4 max-w-sm flex items-center justify-center">
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              </div>
+            ) : hasExistingData && (
               <TypographySmall
                 text={`Last imported: ${json?.transactions?.length} transactions`}
                 className="text-muted-foreground"
@@ -510,15 +230,29 @@ export default function SwitchDemo() {
           </div>
           <div className="p-4 pt-0" />
           <div className="flex flex-col gap-4">
-            {hasExistingData && (
+            {isLoading ? (
+              <div className="rounded-lg border p-4 max-w-sm flex items-center justify-center">
+                <Loader2Icon className="h-4 w-4 animate-spin" />
+              </div>
+            ) : hasExistingData && (
               <div className="rounded-lg border p-4 max-w-sm">
-                <div className="flex flex-col gap-2">
-                  <TypographySmall text="Current Data" />
-                  <div className="text-sm text-muted-foreground">
-                    <div>From: {new Date(json?.meta?.from).toLocaleDateString()}</div>
-                    <div>To: {new Date(json?.meta?.to).toLocaleDateString()}</div>
-                    <div>Exported: {new Date(json?.meta?.exportedAt).toLocaleString()}</div>
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-2">
+                    <TypographySmall text="Current Data" />
+                    <div className="text-sm text-muted-foreground">
+                      <div>From: {new Date(json?.meta?.from).toLocaleDateString()}</div>
+                      <div>To: {new Date(json?.meta?.to).toLocaleDateString()}</div>
+                      <div>Exported: {new Date(json?.meta?.exportedAt).toLocaleString()}</div>
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleClearData}
+                    className="h-8 w-8"
+                  >
+                    <Trash2Icon className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
             )}
@@ -566,7 +300,7 @@ export default function SwitchDemo() {
                   className="max-w-sm"
                   disabled={isPasswordProtected && !password}
                 >
-                  {hasExistingData ? 'Update Data' : 'Import'}
+                  {isLoading ? 'Loading...' : hasExistingData ? 'Update Data' : 'Import'}
                 </Button>
               </>
             )}
