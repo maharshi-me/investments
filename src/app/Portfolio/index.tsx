@@ -1,12 +1,19 @@
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { useEffect, useState } from "react"
 import { TypographySmall } from "@/components/ui/typography-small"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Loader2Icon } from "lucide-react"
 import { setPageTitle } from "@/utils/page-title"
-
-import { DataTable } from "@/components/ui/data-table"
-import { ColumnDef } from "@tanstack/react-table"
+import { Input } from "@/components/ui/input"
+import { Search } from "lucide-react"
 
 interface Transaction {
   date: Date
@@ -66,56 +73,6 @@ export default function Transactions() {
     transaction.mfName.toLowerCase().includes(fundFilter.toLowerCase())
   )
 
-  // Add columns definition
-  const columns: ColumnDef<Transaction>[] = [
-    {
-      accessorKey: "date",
-      header: "Date",
-      cell: ({ row }) => formatDate(row.original.date),
-      id: "Date",
-    },
-    {
-      accessorKey: "mfName",
-      header: "Fund Name",
-      id: "Fund Name",
-    },
-    {
-      accessorKey: "folio",
-      header: "Folio",
-      id: "Folio",
-    },
-    {
-      accessorKey: "price",
-      header: "Price / Unit",
-      id: "Price / Unit",
-    },
-    {
-      accessorKey: "units",
-      header: "Units",
-      id: "Units",
-    },
-    {
-      accessorKey: "type",
-      header: "Type",
-      id: "Type",
-      cell: ({ row }) => (
-        <div className={row.original.type === "Investment" ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400 font-medium"}>
-          {row.original.type}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "amount",
-      header: "Amount",
-      id: "Amount",
-      cell: ({ row }) => (
-        <div className={`text-right ${row.original.type === "Investment" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-          {formatCurrency(row.original.amount)}
-        </div>
-      ),
-    },
-  ]
-
   if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
@@ -137,7 +94,45 @@ export default function Transactions() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <DataTable columns={columns} data={filteredTransactions} searchValue={fundFilter} setSearchValue={setFundFilter} />
+      <div className="relative max-w-sm">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Filter by fund name"
+          value={fundFilter}
+          onChange={(e) => setFundFilter(e.target.value)}
+          className="pl-8"
+        />
+      </div>
+      <div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead>Fund Name</TableHead>
+              <TableHead>Folio</TableHead>
+              <TableHead>Scheme</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredTransactions.map((transaction, index) => (
+              <TableRow key={index}>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
+                <TableCell>{transaction.mfName}</TableCell>
+                <TableCell>{transaction.folio}</TableCell>
+                <TableCell>{transaction.matchingScheme.schemeCode}</TableCell>
+                <TableCell className={transaction.type === "Investment" ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400 font-medium"}>
+                  {transaction.type}
+                </TableCell>
+                <TableCell className={`text-right ${transaction.type === "Investment" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                  {formatCurrency(transaction.amount)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 }

@@ -15,6 +15,7 @@ import { InfoIcon } from "lucide-react"
 import { Trash2Icon } from "lucide-react"
 import { Loader2Icon } from "lucide-react"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
+import { setPageTitle } from "@/utils/page-title"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
 
@@ -30,6 +31,7 @@ export default function SwitchDemo() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     const data = localStorage.getItem('investmentsData')
@@ -39,6 +41,10 @@ export default function SwitchDemo() {
       setJson(parsedData)
     }
     setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    setPageTitle("Settings")
   }, [])
 
   const changeTheme = (checked: boolean) => {
@@ -85,6 +91,7 @@ export default function SwitchDemo() {
 
   const handleViewFile = async () => {
     if (selectedFile) {
+      setIsProcessing(true)
       try {
         const blobUrl = URL.createObjectURL(selectedFile)
         const loadingTask = getDocument({
@@ -121,7 +128,7 @@ export default function SwitchDemo() {
 
         const filteredText = getFilteredText(text)
 
-        const json = getJsonFromTxt(filteredText)
+        const json = await getJsonFromTxt(filteredText)
 
         setJson(json)
         localStorage.setItem('investmentsData', JSON.stringify(json))
@@ -149,14 +156,19 @@ export default function SwitchDemo() {
           ),
         })
 
+        setIsProcessing(false)
       } catch (err: any) {
         console.log(err)
         if (err.name === 'PasswordException') {
           setError("Invalid password. Please try again.")
         }
+        else if (err.message) {
+          setError(err.message)
+        }
         else {
           setError("An error occurred while processing the file.")
         }
+        setIsProcessing(false)
       }
     }
   }
@@ -261,6 +273,7 @@ export default function SwitchDemo() {
               accept=".pdf,application/pdf"
               onChange={handleFileChange}
               className="max-w-sm"
+              disabled={isProcessing}
             />
             {selectedFile && (
               <>
@@ -275,6 +288,7 @@ export default function SwitchDemo() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter PDF password"
                         className="pr-10"
+                        disabled={isProcessing}
                       />
                       <Button
                         type="button"
@@ -282,6 +296,7 @@ export default function SwitchDemo() {
                         size="icon"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
+                        disabled={isProcessing}
                       >
                         {showPassword ? (
                           <EyeOffIcon className="h-4 w-4" />
@@ -298,9 +313,18 @@ export default function SwitchDemo() {
                 <Button
                   onClick={handleViewFile}
                   className="max-w-sm"
-                  disabled={isPasswordProtected && !password}
+                  disabled={isProcessing || (isPasswordProtected && !password)}
                 >
-                  {isLoading ? 'Loading...' : hasExistingData ? 'Update Data' : 'Import'}
+                  {isProcessing ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2Icon className="h-4 w-4 animate-spin" />
+                      Processing...
+                    </div>
+                  ) : hasExistingData ? (
+                    'Update Data'
+                  ) : (
+                    'Import'
+                  )}
                 </Button>
               </>
             )}

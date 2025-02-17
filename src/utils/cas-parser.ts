@@ -164,14 +164,16 @@ export const getFilteredText = (text: string) => {
   return newFilteredLines.join('\n')
 }
 
-export const getJsonFromTxt = t => {
+export const getJsonFromTxt = async (t: string) => {
   const lines = t.split('\n')
+
+  const transactions = await getTransactions(lines)
 
   const obj = {
     meta: getMeta(lines),
     holder: getHolder(lines),
     summary: getSummary(lines),
-    transactions: getTransactions(lines)
+    transactions: transactions
   }
 
   return obj
@@ -183,9 +185,13 @@ export const strToCur = num => Math.round((Number(num.replace(',', '')) + Number
 export const strToPrice = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 10000) / 10000
 export const strToUnits = num => Math.round((Number(num.replace(',', '')) + Number.EPSILON) * 1000) / 1000
 
-export const getIndexByStartingText = (lines, text) => lines.indexOf(lines.filter(line => line.startsWith(text))[0])
+export const getIndexByStartingText = (lines: string[], text: string) => lines.indexOf(lines.filter(line => line.startsWith(text))[0])
 
-export const getTransactions = lines => {
+export const getTransactions = async (lines: string[]) => {
+  const response = await fetch('https://api.mfapi.in/mf')
+  const mfData = await response.json()
+  console.log('Mutual Fund Data:', mfData)
+
   const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
 
   let filteredLines = lines.filter((_line, index) => index > PortfolioSummaryTotalRowIndex + 1)
@@ -211,12 +217,27 @@ export const getTransactions = lines => {
 
   filteredLines = filteredLines.filter(line => !line.startsWith('Folio No:'))
 
-  let mfNameFull, mfName, folio, isin
+  let mfNameFull: string, mfName: string, folio: string, isin: string, matchingScheme: any
 
   filteredLines.forEach((line, index) => {
     if (line.includes('Folio No:')) {
       [ mfNameFull, folio ] = line.split(" Folio No: ")
       isin = line.split(' - ISIN : ')[1].split("(")[0].split('Registrar')[0].split(' ').join('').trim()
+
+      if (!isin) {
+        console.log('No ISIN found for line:', line)
+        throw new Error(`No ISIN found for line: ${line}`)
+      }
+
+      matchingScheme = mfData.find(scheme => 
+        scheme.isinGrowth === isin || scheme.isinDivReinvestment === isin
+      )
+
+      if (!matchingScheme) {
+        console.log('No matching scheme found for ISIN:', isin)
+        throw new Error(`No matching scheme found for ISIN: ${isin}`)
+      }
+
       mfNameFull = mfNameFull.split(' - ISIN : ')[0].trim()
       mfNameFull = mfNameFull.split(" -").splice(1).join(" -").trim()
 
@@ -255,6 +276,7 @@ export const getTransactions = lines => {
         filteredLines[index] = {
           mfNameFull,
           isin,
+          matchingScheme,
           mfName,
           folio,
           date: new Date(
@@ -278,7 +300,7 @@ export const getTransactions = lines => {
   return filteredLines
 }
 
-export const getSummary = lines => {
+export const getSummary = (lines: string[]) => {
   const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
   const PortfolioSummaryRowIndex = getIndexByStartingText(lines, 'PORTFOLIO SUMMARY')
 
@@ -299,7 +321,7 @@ export const getSummary = lines => {
   }
 }
 
-export const getHolder = lines => {
+export const getHolder = (lines: string[]) => {
   const mobileNumberRowIndex = getIndexByStartingText(lines, 'Mobile')
   const EmailIdRowIndex = getIndexByStartingText(lines, 'Email Id')
 
@@ -311,7 +333,7 @@ export const getHolder = lines => {
   }
 }
 
-export const getMeta = lines => {
+export const getMeta = (lines: string[]) => {
   const timestamp = lines[0].split(' ')[0].split('-')[1]
   const from = lines[2].split(' ')[0].split('-')
   const to = lines[2].split(' ')[2].split('-')
