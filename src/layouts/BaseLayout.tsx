@@ -28,6 +28,8 @@ export default function BaseLayout({
         return 'Settings'
       case '/transactions':
         return 'Transactions'
+      case '/portfolio':
+      return 'Portfolio'
       default:
         return 'Dashboard'
     }

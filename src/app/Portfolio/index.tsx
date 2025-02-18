@@ -1,19 +1,14 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { useEffect, useState } from "react"
 import { TypographySmall } from "@/components/ui/typography-small"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Loader2Icon } from "lucide-react"
 import { setPageTitle } from "@/utils/page-title"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+
+import { DataTable } from "@/components/ui/data-table"
+import { ColumnDef } from "@tanstack/react-table"
 
 interface Transaction {
   date: Date
@@ -31,11 +26,23 @@ interface Transaction {
   }
 }
 
-export default function Transactions() {
+interface PortfolioRow {
+  mfName: string
+  invested: number
+  redemption: number
+  netInvestment: number
+  units: number
+  currentNav?: number
+  currentValue?: number
+  folio: string
+}
+
+export default function Portfolio() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
   const [fundFilter, setFundFilter] = useState("")
+  const [showZeroUnits, setShowZeroUnits] = useState(false)
 
   useEffect(() => {
     const data = localStorage.getItem('investmentsData')
@@ -50,8 +57,39 @@ export default function Transactions() {
   }, [])
 
   useEffect(() => {
-    setPageTitle("Transactions")
+    setPageTitle("Portfolio")
   }, [])
+
+  // Modify portfolio summary calculation to ignore folios
+  const portfolioSummary = transactions.reduce((acc: { [key: string]: PortfolioRow }, curr) => {
+    const key = curr.mfName // Remove folio from key
+    if (!acc[key]) {
+      acc[key] = {
+        mfName: curr.mfName,
+        invested: 0,
+        redemption: 0,
+        netInvestment: 0,
+        units: 0,
+        folio: '-' // Set a default value since we're not using folios
+      }
+    }
+    
+    if (curr.type === "Investment") {
+      acc[key].invested += curr.amount
+      acc[key].units += curr.units
+    } else {
+      acc[key].redemption += curr.amount
+      acc[key].units -= curr.units
+    }
+    
+    acc[key].netInvestment = acc[key].invested - acc[key].redemption
+    
+    return acc
+  }, {})
+
+  const portfolioData = Object.values(portfolioSummary)
+    .filter(row => showZeroUnits ? true : Math.abs(row.units) > 0.001) // Filter based on toggle
+    .sort((a, b) => b.invested - a.invested)
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-IN', {
@@ -69,9 +107,63 @@ export default function Transactions() {
     }).format(amount)
   }
 
+  const formatUnits = (units: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      maximumFractionDigits: 3
+    }).format(units)
+  }
+
   const filteredTransactions = transactions.filter(transaction => 
     transaction.mfName.toLowerCase().includes(fundFilter.toLowerCase())
   )
+
+  const columns: ColumnDef<PortfolioRow>[] = [
+    {
+      accessorKey: "mfName",
+      header: "Fund Name",
+      id: "Fund Name",
+    },
+    {
+      accessorKey: "invested",
+      header: "Total Invested",
+      id: "Total Invested",
+      cell: ({ row }) => (
+        <div className="text-right text-green-600 dark:text-green-400">
+          {formatCurrency(row.original.invested)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "redemption",
+      header: "Total Redemption",
+      id: "Total Redemption",
+      cell: ({ row }) => (
+        <div className="text-right text-red-600 dark:text-red-400">
+          {formatCurrency(row.original.redemption)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "netInvestment",
+      header: "Net Investment",
+      id: "Net Investment",
+      cell: ({ row }) => (
+        <div className={`text-right ${row.original.netInvestment >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+          {formatCurrency(row.original.netInvestment)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "units",
+      header: "Current Units",
+      id: "Current Units",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatUnits(row.original.units)}
+        </div>
+      ),
+    },
+  ]
 
   if (isLoading) {
     return (
@@ -94,45 +186,22 @@ export default function Transactions() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Filter by fund name"
-          value={fundFilter}
-          onChange={(e) => setFundFilter(e.target.value)}
-          className="pl-8"
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="show-zero"
+            checked={showZeroUnits}
+            onCheckedChange={setShowZeroUnits}
+          />
+          <Label htmlFor="show-zero">Show redeemed funds</Label>
+        </div>
       </div>
-      <div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Fund Name</TableHead>
-              <TableHead>Folio</TableHead>
-              <TableHead>Scheme</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredTransactions.map((transaction, index) => (
-              <TableRow key={index}>
-                <TableCell>{formatDate(transaction.date)}</TableCell>
-                <TableCell>{transaction.mfName}</TableCell>
-                <TableCell>{transaction.folio}</TableCell>
-                <TableCell>{transaction.matchingScheme.schemeCode}</TableCell>
-                <TableCell className={transaction.type === "Investment" ? "text-green-600 dark:text-green-400 font-medium" : "text-red-600 dark:text-red-400 font-medium"}>
-                  {transaction.type}
-                </TableCell>
-                <TableCell className={`text-right ${transaction.type === "Investment" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                  {formatCurrency(transaction.amount)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable 
+        columns={columns} 
+        data={portfolioData} 
+        searchValue={fundFilter}
+        setSearchValue={setFundFilter}
+      />
     </div>
   )
 }

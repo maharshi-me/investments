@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 import BaseLayout from "@/layouts/BaseLayout";
 import Transactions from "@/app/Transactions";
 import { Toaster } from "@/components/ui/toaster"
-
+import Portfolio from "@/app/Portfolio";
 function App() {
 
   return (
@@ -13,6 +13,7 @@ function App() {
       <BaseLayout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/transactions" element={<Transactions />} />
         </Routes>

@@ -23,7 +23,7 @@ const data = {
     },
     {
       title: "Portfolio",
-      url: "/",
+      url: "/portfolio",
       icon: LayoutList
     },
     {
