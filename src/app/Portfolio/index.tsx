@@ -42,7 +42,7 @@ export default function Portfolio() {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
   const [fundFilter, setFundFilter] = useState("")
-  const [showZeroUnits, setShowZeroUnits] = useState(false)
+  const [showZeroUnits, setShowZeroUnits] = useState(true)
 
   useEffect(() => {
     const data = localStorage.getItem('investmentsData')
@@ -73,7 +73,7 @@ export default function Portfolio() {
         folio: '-' // Set a default value since we're not using folios
       }
     }
-    
+
     if (curr.type === "Investment") {
       acc[key].invested += curr.amount
       acc[key].units += curr.units
@@ -81,13 +81,17 @@ export default function Portfolio() {
       acc[key].redemption += curr.amount
       acc[key].units -= curr.units
     }
-    
+
     acc[key].netInvestment = acc[key].invested - acc[key].redemption
-    
+
     return acc
   }, {})
 
-  const portfolioData = Object.values(portfolioSummary)
+  const filteredPortfolioSummary = Object.values(portfolioSummary).filter(row =>
+    row.mfName.toLowerCase().includes(fundFilter.toLowerCase())
+  )
+
+  const portfolioData = filteredPortfolioSummary
     .filter(row => showZeroUnits ? true : Math.abs(row.units) > 0.001) // Filter based on toggle
     .sort((a, b) => b.invested - a.invested)
 
@@ -113,10 +117,6 @@ export default function Portfolio() {
     }).format(units)
   }
 
-  const filteredTransactions = transactions.filter(transaction => 
-    transaction.mfName.toLowerCase().includes(fundFilter.toLowerCase())
-  )
-
   const columns: ColumnDef<PortfolioRow>[] = [
     {
       accessorKey: "mfName",
@@ -130,26 +130,6 @@ export default function Portfolio() {
       cell: ({ row }) => (
         <div className="text-right text-green-600 dark:text-green-400">
           {formatCurrency(row.original.invested)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "redemption",
-      header: "Total Redemption",
-      id: "Total Redemption",
-      cell: ({ row }) => (
-        <div className="text-right text-red-600 dark:text-red-400">
-          {formatCurrency(row.original.redemption)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "netInvestment",
-      header: "Net Investment",
-      id: "Net Investment",
-      cell: ({ row }) => (
-        <div className={`text-right ${row.original.netInvestment >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-          {formatCurrency(row.original.netInvestment)}
         </div>
       ),
     },
@@ -196,9 +176,9 @@ export default function Portfolio() {
           <Label htmlFor="show-zero">Show redeemed funds</Label>
         </div>
       </div>
-      <DataTable 
-        columns={columns} 
-        data={portfolioData} 
+      <DataTable
+        columns={columns}
+        data={portfolioData}
         searchValue={fundFilter}
         setSearchValue={setFundFilter}
       />
