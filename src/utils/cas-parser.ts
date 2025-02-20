@@ -229,7 +229,7 @@ export const getTransactions = async (lines: string[]) => {
         throw new Error(`No ISIN found for line: ${line}`)
       }
 
-      matchingScheme = mfData.find(scheme => 
+      matchingScheme = mfData.find(scheme =>
         scheme.isinGrowth === isin || scheme.isinDivReinvestment === isin
       )
 

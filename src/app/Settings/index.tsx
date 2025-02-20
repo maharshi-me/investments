@@ -16,6 +16,8 @@ import { Trash2Icon } from "lucide-react"
 import { Loader2Icon } from "lucide-react"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
 import { setPageTitle } from "@/utils/page-title"
+import { navHistoryDB } from "@/utils/db"
+import { fetchNavHistory } from "@/utils/nav-fetcher"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
 
@@ -130,8 +132,15 @@ export default function SwitchDemo() {
 
         const json = await getJsonFromTxt(filteredText)
 
+        // Clear existing IndexedDB data before storing new data
+        await navHistoryDB.clear()
+
         setJson(json)
         localStorage.setItem('investmentsData', JSON.stringify(json))
+
+        // Fetch fresh NAV data
+        await fetchNavHistory()
+
         setError("")
         URL.revokeObjectURL(blobUrl)
 
@@ -173,8 +182,11 @@ export default function SwitchDemo() {
     }
   }
 
-  const handleClearData = () => {
+  const handleClearData = async () => {
+    // Clear localStorage
     localStorage.removeItem('investmentsData')
+    // Clear IndexedDB
+    await navHistoryDB.clear()
     setJson(null)
     setHasExistingData(false)
     toast({
@@ -209,7 +221,7 @@ export default function SwitchDemo() {
                     <p className="text-sm font-medium">How to download CAS PDF:</p>
                     <ol className="text-sm list-decimal ml-4 space-y-1">
                       <li>Visit{" "}
-                        <a 
+                        <a
                           href="https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement"
                           target="_blank"
                           rel="noopener noreferrer"

@@ -12,11 +12,15 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { useLocation } from "react-router-dom"
+import { Loader2Icon } from "lucide-react"
+
 
 export default function BaseLayout({
   children,
+  isLoading,
 }: Readonly<{
   children: React.ReactNode;
+  isLoading: boolean;
 }>) {
   const location = useLocation()
 
@@ -52,7 +56,16 @@ export default function BaseLayout({
             </Breadcrumb>
           </div>
         </header>
-        {children}
+        {isLoading ? (
+          <div className="flex h-screen items-center justify-center">
+            <div className="flex flex-col items-center gap-2">
+              <Loader2Icon className="h-8 w-8 animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading NAV data...</p>
+            </div>
+          </div>
+        ) : (
+          children
+        )}
       </SidebarInset>
     </SidebarProvider>
   )
