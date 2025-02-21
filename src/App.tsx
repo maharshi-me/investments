@@ -6,7 +6,7 @@ import BaseLayout from "@/layouts/BaseLayout";
 import Transactions from "@/app/Transactions";
 import { useEffect, useState } from "react"
 import { fetchNavHistory } from "@/utils/nav-fetcher"
-
+import Portfolio from "@/app/Portfolio";
 function App() {
   const [isLoading, setIsLoading] = useState(true)
 
@@ -23,6 +23,7 @@ function App() {
       <BaseLayout isLoading={isLoading}>
         <Routes>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/transactions" element={<Transactions />} />
         </Routes>

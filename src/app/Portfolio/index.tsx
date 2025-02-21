@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label"
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 
+import getPortfolio from '@/utils/get-portfolio'
+
+
 interface Transaction {
   date: Date
   mfNameFull: string
@@ -38,62 +41,50 @@ interface PortfolioRow {
 }
 
 export default function Portfolio() {
+  const currentDate = new Date()
+
+  const oneYearAgo = new Date()
+  oneYearAgo.setFullYear(currentDate.getFullYear() - 1)
+
+  const threeYearsAgo = new Date();
+  threeYearsAgo.setFullYear(currentDate.getFullYear() - 3)
+
+
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [portfolio, setPortfolio] = useState<PortfolioRow[]>([])
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
   const [fundFilter, setFundFilter] = useState("")
   const [showZeroUnits, setShowZeroUnits] = useState(true)
 
+  console.log('portfolio', portfolio)
+
   useEffect(() => {
-    const data = localStorage.getItem('investmentsData')
-    if (data) {
-      const parsedData = JSON.parse(data)
+    const fetchData = async () => {
+      const data = localStorage.getItem('investmentsData')
+      if (data) {
+        const parsedData = JSON.parse(data)
       const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
         new Date(b.date).getTime() - new Date(a.date).getTime()
       )
       setTransactions(sortedTransactions)
+        const portfolio = await getPortfolio(sortedTransactions)
+        setPortfolio(portfolio)
+      }
+      setIsLoading(false)
     }
-    setIsLoading(false)
+    fetchData()
   }, [])
 
   useEffect(() => {
     setPageTitle("Portfolio")
   }, [])
 
-  // Modify portfolio summary calculation to ignore folios
-  const portfolioSummary = transactions.reduce((acc: { [key: string]: PortfolioRow }, curr) => {
-    const key = curr.mfName // Remove folio from key
-    if (!acc[key]) {
-      acc[key] = {
-        mfName: curr.mfName,
-        invested: 0,
-        redemption: 0,
-        netInvestment: 0,
-        units: 0,
-        folio: '-' // Set a default value since we're not using folios
-      }
-    }
 
-    if (curr.type === "Investment") {
-      acc[key].invested += curr.amount
-      acc[key].units += curr.units
-    } else {
-      acc[key].redemption += curr.amount
-      acc[key].units -= curr.units
-    }
-
-    acc[key].netInvestment = acc[key].invested - acc[key].redemption
-
-    return acc
-  }, {})
-
-  const filteredPortfolioSummary = Object.values(portfolioSummary).filter(row =>
+  const filteredPortfolio = Object.values(portfolio).filter(row =>
     row.mfName.toLowerCase().includes(fundFilter.toLowerCase())
-  )
+  ).filter(row => showZeroUnits ? true : Math.abs(row.currentUnits) > 0.001)
 
-  const portfolioData = filteredPortfolioSummary
-    .filter(row => showZeroUnits ? true : Math.abs(row.units) > 0.001) // Filter based on toggle
-    .sort((a, b) => b.invested - a.invested)
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('en-IN', {
@@ -124,25 +115,104 @@ export default function Portfolio() {
       id: "Fund Name",
     },
     {
-      accessorKey: "invested",
-      header: "Total Invested",
-      id: "Total Invested",
+      accessorKey: "currentUnits",
+      header: ({ column }) => (
+        <div className="text-right">Current Units</div>
+      ),
+      id: "Current Units",
       cell: ({ row }) => (
-        <div className="text-right text-green-600 dark:text-green-400">
-          {formatCurrency(row.original.invested)}
+        <div className="text-right">
+          {formatUnits(row.original.currentUnits)}
         </div>
       ),
     },
     {
-      accessorKey: "units",
-      header: "Current Units",
-      id: "Current Units",
+      accessorKey: "currentInvested",
+      header: ({ column }) => (
+        <div className="text-right">Average Cost Price</div>
+      ),
+      id: "Average Cost Price",
       cell: ({ row }) => (
         <div className="text-right">
-          {formatUnits(row.original.units)}
+          {formatCurrency(row.original.currentInvested ? (row.original.currentInvested / row.original.currentUnits) : 0)}
         </div>
       ),
     },
+    {
+      accessorKey: "latestPrice",
+      header: ({ column }) => (
+        <div className="text-right">Current Price</div>
+      ),
+      id: "Current Price",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatCurrency(row.original.latestPrice)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "currentInvested",
+      header: ({ column }) => (
+        <div className="text-right">Invested</div>
+      ),
+      id: "Invested",
+      cell: ({ row }) => (
+        <div className="text-right">
+          {formatCurrency(row.original.currentInvested)}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "profit",
+      header: ({ column }) => (
+        <div className="text-right">Current Returns</div>
+      ),
+      id: "Current Returns",
+      cell: ({ row }) => (
+        <div className={`text-right ${row.original.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+          {formatCurrency(row.original.profit)}
+        </div>
+      ),
+    },
+    ...(showZeroUnits ? [
+      {
+        accessorKey: "realisedProfit",
+        header: ({ column }) => (
+          <div className="text-right">Realised Returns</div>
+        ),
+        id: "Realised Returns",
+        cell: ({ row }) => (
+          <div className={`text-right ${row.original.realisedProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            {formatCurrency(row.original.realisedProfit)}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "currentValue",
+        header: ({ column }) => (
+          <div className="text-right">Current Value</div>
+        ),
+        id: "Current Value",
+        cell: ({ row }) => (
+          <div className="text-right">
+            {formatCurrency(row.original.currentValue)}
+          </div>
+        ),
+      }
+    ] : [
+      {
+        accessorKey: "currentValue",
+        header: ({ column }) => (
+          <div className="text-right">Current Value</div>
+        ),
+        id: "Current Value",
+        cell: ({ row }) => (
+          <div className="text-right">
+            {formatCurrency(row.original.currentValue)}
+          </div>
+        ),
+      }
+    ])
   ]
 
   if (isLoading) {
@@ -178,7 +248,7 @@ export default function Portfolio() {
       </div>
       <DataTable
         columns={columns}
-        data={portfolioData}
+        data={filteredPortfolio}
         searchValue={fundFilter}
         setSearchValue={setFundFilter}
       />

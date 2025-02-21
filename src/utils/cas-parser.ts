@@ -190,7 +190,6 @@ export const getIndexByStartingText = (lines: string[], text: string) => lines.i
 export const getTransactions = async (lines: string[]) => {
   const response = await fetch('https://api.mfapi.in/mf')
   const mfData = await response.json()
-  console.log('Mutual Fund Data:', mfData)
 
   const PortfolioSummaryTotalRowIndex = getIndexByStartingText(lines, 'Total')
 
