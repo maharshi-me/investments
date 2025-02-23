@@ -15,6 +15,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ export function DataTable<TData, TValue>({
   data,
   searchValue,
   setSearchValue,
+  footer,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnVisibility, setColumnVisibility] = useState({})
@@ -138,6 +140,19 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
+          {footer?.length && (
+            <TableFooter>
+              <TableRow>
+                {footer.map((f) => (
+                  <TableCell key={f.value} colSpan={f.colSpan}>
+                    <div className={f.align === "right" ? "text-right" : ""}>
+                      {f.render ? f.render() : f.value}
+                    </div>
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableFooter>
+          )}
         </Table>
       </div>
     </div>

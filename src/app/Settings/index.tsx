@@ -16,7 +16,6 @@ import { Trash2Icon } from "lucide-react"
 import { Loader2Icon } from "lucide-react"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
 import { setPageTitle } from "@/utils/page-title"
-import { navHistoryDB } from "@/utils/db"
 import { fetchNavHistory } from "@/utils/nav-fetcher"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
@@ -132,9 +131,6 @@ export default function SwitchDemo() {
 
         const json = await getJsonFromTxt(filteredText)
 
-        // Clear existing IndexedDB data before storing new data
-        await navHistoryDB.clear()
-
         setJson(json)
         localStorage.setItem('investmentsData', JSON.stringify(json))
 
@@ -185,8 +181,7 @@ export default function SwitchDemo() {
   const handleClearData = async () => {
     // Clear localStorage
     localStorage.removeItem('investmentsData')
-    // Clear IndexedDB
-    await navHistoryDB.clear()
+
     setJson(null)
     setHasExistingData(false)
     toast({

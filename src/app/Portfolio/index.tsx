@@ -94,6 +94,12 @@ export default function Portfolio() {
     })
   }
 
+  const renderProfit = (profit: number) => {
+    return <div className={`text-right ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+      {formatCurrency(profit)}
+    </div>
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -116,7 +122,7 @@ export default function Portfolio() {
     },
     {
       accessorKey: "currentUnits",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">Current Units</div>
       ),
       id: "Current Units",
@@ -128,7 +134,7 @@ export default function Portfolio() {
     },
     {
       accessorKey: "currentInvested",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">Average Cost Price</div>
       ),
       id: "Average Cost Price",
@@ -140,7 +146,7 @@ export default function Portfolio() {
     },
     {
       accessorKey: "latestPrice",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">Current Price</div>
       ),
       id: "Current Price",
@@ -152,7 +158,7 @@ export default function Portfolio() {
     },
     {
       accessorKey: "currentInvested",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">Invested</div>
       ),
       id: "Invested",
@@ -164,32 +170,24 @@ export default function Portfolio() {
     },
     {
       accessorKey: "profit",
-      header: ({ column }) => (
+      header: () => (
         <div className="text-right">Current Returns</div>
       ),
       id: "Current Returns",
-      cell: ({ row }) => (
-        <div className={`text-right ${row.original.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-          {formatCurrency(row.original.profit)}
-        </div>
-      ),
+      cell: ({ row }) => renderProfit(row.original.profit),
     },
     ...(showZeroUnits ? [
       {
         accessorKey: "realisedProfit",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-right">Realised Returns</div>
         ),
         id: "Realised Returns",
-        cell: ({ row }) => (
-          <div className={`text-right ${row.original.realisedProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-            {formatCurrency(row.original.realisedProfit)}
-          </div>
-        ),
+        cell: ({ row }) => renderProfit(row.original.realisedProfit),
       },
       {
         accessorKey: "currentValue",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-right">Current Value</div>
         ),
         id: "Current Value",
@@ -202,7 +200,7 @@ export default function Portfolio() {
     ] : [
       {
         accessorKey: "currentValue",
-        header: ({ column }) => (
+        header: () => (
           <div className="text-right">Current Value</div>
         ),
         id: "Current Value",
@@ -251,6 +249,34 @@ export default function Portfolio() {
         data={filteredPortfolio}
         searchValue={fundFilter}
         setSearchValue={setFundFilter}
+        footer={[
+          {
+            value: "Total",
+            colSpan: 4
+          },
+          {
+            value: formatCurrency(portfolio.reduce((acc, curr) => acc + curr.currentInvested, 0)),
+            colSpan: 1,
+            align: "right"
+          },
+          {
+            value: renderProfit(portfolio.reduce((acc, curr) => acc + curr.profit, 0)),
+            colSpan: 1,
+            align: "right"
+          },
+          ...(showZeroUnits ? [
+            {
+              value: renderProfit(portfolio.reduce((acc, curr) => acc + curr.realisedProfit, 0)),
+              colSpan: 1,
+              align: "right"
+            }
+          ] : []),
+          {
+            value: formatCurrency(portfolio.reduce((acc, curr) => acc + curr.currentValue, 0)),
+            colSpan: 1,
+            align: "right"
+          }
+        ]}
       />
     </div>
   )
