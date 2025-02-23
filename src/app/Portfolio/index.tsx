@@ -12,7 +12,9 @@ import { ColumnDef } from "@tanstack/react-table"
 
 import getPortfolio from '@/utils/get-portfolio'
 import {  TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
-
+import { formatCurrency } from "@/utils/functions/formatCurrency"
+import { renderProfit } from "@/utils/functions/renderProfit"
+import getSummary from "@/utils/functions/getSummary"
 interface Transaction {
   date: Date
   mfNameFull: string
@@ -57,7 +59,7 @@ export default function Portfolio() {
   const [fundFilter, setFundFilter] = useState("")
   const [showZeroUnits, setShowZeroUnits] = useState(true)
 
-  console.log('portfolio', portfolio)
+  const { totalValue, invested, currentProfit, realisedProfit } = getSummary(portfolio)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,20 +94,6 @@ export default function Portfolio() {
       month: 'short',
       day: 'numeric'
     })
-  }
-
-  const renderProfit = (profit: number, type: 'currency' | 'percentage' = 'currency') => {
-    return <div className={`text-right ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-      {type === 'currency' ? formatCurrency(profit) : `${profit.toFixed(2)}%`}
-    </div>
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount)
   }
 
   const formatUnits = (units: number) => {
@@ -270,24 +258,24 @@ export default function Portfolio() {
             colSpan: 3
           },
           {
-            value: formatCurrency(portfolio.reduce((acc, curr) => acc + curr.currentInvested, 0)),
+            value: formatCurrency(invested),
             colSpan: 1,
             align: "right"
           },
           {
-            value: renderProfit(portfolio.reduce((acc, curr) => acc + curr.profit, 0)),
+            value: renderProfit(currentProfit),
             colSpan: 1,
             align: "right"
           },
           ...(showZeroUnits ? [
             {
-              value: renderProfit(portfolio.reduce((acc, curr) => acc + curr.realisedProfit, 0)),
+              value: renderProfit(realisedProfit),
               colSpan: 1,
               align: "right"
             }
           ] : []),
           {
-            value: formatCurrency(portfolio.reduce((acc, curr) => acc + curr.currentValue, 0)),
+            value: formatCurrency(totalValue),
             colSpan: 1,
             align: "right"
           }

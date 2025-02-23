@@ -113,3 +113,12 @@ html {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--background));
 }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

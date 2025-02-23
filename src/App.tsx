@@ -22,7 +22,7 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <BaseLayout isLoading={isLoading}>
         <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/portfolio" element={<Portfolio />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/transactions" element={<Transactions />} />
