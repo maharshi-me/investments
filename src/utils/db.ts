@@ -46,12 +46,12 @@ const initDB = async () => {
 }
 
 export const navHistoryDB = {
-  async get(schemeCode: string) {
+  async get(schemeCode: number) {
     const database = await initDB()
     return database.get(navStoreKey, schemeCode) as Promise<NavData | undefined>
   },
 
-  async set(schemeCode: string, data: NavResponse) {
+  async set(schemeCode: number, data: NavResponse) {
     const database = await initDB()
     const navData: NavData = {
       data,

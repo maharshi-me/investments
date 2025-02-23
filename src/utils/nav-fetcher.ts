@@ -43,14 +43,14 @@ export const fetchNavHistory = async () => {
   const uniqueSchemeCodes = [...new Set(parsedData.transactions
     .map((t: Transaction) => t.matchingScheme?.schemeCode)
     .filter(Boolean)
-  )]
+  )] as number[]
 
   console.log('Unique scheme codes:', uniqueSchemeCodes)
 
   for (const schemeCode of uniqueSchemeCodes) {
     try {
       // Check if we have valid cached data
-      const cachedData = await navHistoryDB.get(String(schemeCode))
+      const cachedData = await navHistoryDB.get(schemeCode)
       const shouldUpdate = !cachedData?.timestamp || shouldRefetch(cachedData.timestamp)
 
       if (!shouldUpdate) {
@@ -63,7 +63,7 @@ export const fetchNavHistory = async () => {
       const navData: NavResponse = await response.json()
 
       // Store in IndexedDB
-      await navHistoryDB.set(String(schemeCode), navData)
+      await navHistoryDB.set(schemeCode, navData)
       console.log(`NAV history stored for scheme ${schemeCode}`)
 
       // Add a small delay to avoid rate limiting
