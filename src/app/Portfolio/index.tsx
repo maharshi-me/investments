@@ -11,7 +11,7 @@ import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 
 import getPortfolio from '@/utils/get-portfolio'
-
+import {  TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
 
 interface Transaction {
   date: Date
@@ -94,9 +94,9 @@ export default function Portfolio() {
     })
   }
 
-  const renderProfit = (profit: number) => {
+  const renderProfit = (profit: number, type: 'currency' | 'percentage' = 'currency') => {
     return <div className={`text-right ${profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-      {formatCurrency(profit)}
+      {type === 'currency' ? formatCurrency(profit) : `${profit.toFixed(2)}%`}
     </div>
   }
 
@@ -119,6 +119,7 @@ export default function Portfolio() {
       accessorKey: "mfName",
       header: "Fund Name",
       id: "Fund Name",
+      enableHiding: false,
     },
     {
       accessorKey: "currentUnits",
@@ -135,38 +136,15 @@ export default function Portfolio() {
     {
       accessorKey: "currentInvested",
       header: () => (
-        <div className="text-right">Average Cost Price</div>
+        <div className="text-right">Current Invested</div>
       ),
-      id: "Average Cost Price",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatCurrency(row.original.currentInvested ? (row.original.currentInvested / row.original.currentUnits) : 0)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "latestPrice",
-      header: () => (
-        <div className="text-right">Current Price</div>
-      ),
-      id: "Current Price",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatCurrency(row.original.latestPrice)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "currentInvested",
-      header: () => (
-        <div className="text-right">Invested</div>
-      ),
-      id: "Invested",
+      id: "Current Invested",
       cell: ({ row }) => (
         <div className="text-right">
           {formatCurrency(row.original.currentInvested)}
         </div>
       ),
+      enableHiding: false,
     },
     {
       accessorKey: "profit",
@@ -196,6 +174,7 @@ export default function Portfolio() {
             {formatCurrency(row.original.currentValue)}
           </div>
         ),
+        enableHiding: false,
       }
     ] : [
       {
@@ -209,9 +188,43 @@ export default function Portfolio() {
             {formatCurrency(row.original.currentValue)}
           </div>
         ),
+        enableHiding: false,
       }
     ])
   ]
+
+  const renderSubComponent = ({ row }: { row: PortfolioRow }) => {
+    const fund = row.original
+    return (
+      <div className="p-4">
+        <h4 className="font-medium mb-2">Current Holdings</h4>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Units</TableHead>
+              <TableHead className="text-right">Current Invested</TableHead>
+              <TableHead className="text-right">Current Returns</TableHead>
+              <TableHead className="text-right">Gain</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {fund.existingFunds.map((transaction: any, i: number) => (
+              <TableRow key={i}>
+                <TableCell>{formatDate(transaction.date)}</TableCell>
+                <TableCell className="text-right">{formatUnits(transaction.units)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.invested)}</TableCell>
+                <TableCell className="text-right">{renderProfit(transaction.profit)}</TableCell>
+                <TableCell className="text-right">{renderProfit(transaction.gain, 'percentage')}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.units * transaction.price)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    )
+  }
 
   if (isLoading) {
     return (
@@ -249,10 +262,12 @@ export default function Portfolio() {
         data={filteredPortfolio}
         searchValue={fundFilter}
         setSearchValue={setFundFilter}
+        renderSubComponent={renderSubComponent}
+        showCollapsableRows
         footer={[
           {
             value: "Total",
-            colSpan: 4
+            colSpan: 3
           },
           {
             value: formatCurrency(portfolio.reduce((acc, curr) => acc + curr.currentInvested, 0)),
