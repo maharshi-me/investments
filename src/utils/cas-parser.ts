@@ -296,6 +296,8 @@ export const getTransactions = async (lines: string[]) => {
 
   filteredLines = filteredLines.filter(line => typeof(line) !== 'string')
 
+  filteredLines = filteredLines.filter(line => isNaN(line.amount) === false)
+
   return filteredLines
 }
 
