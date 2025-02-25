@@ -2,16 +2,8 @@ import byDateAsc from '@/utils/functions/byDateAsc'
 import byTotalCostDesc from '@/utils/functions/byTotalCostDesc'
 import stringToColour from '@/utils/functions/stringToColour'
 import { navHistoryDB } from '@/utils/db'
+import { Transaction, Portfolio } from '@/types/investments'
 
-interface Transaction {
-  mfName: string
-  matchingScheme: {
-    schemeCode: string
-  }
-  date: string
-  units: number
-  price: number
-}
 const getLatestPrice = async (schemeCode: string) => {
   const data = await navHistoryDB.get(schemeCode)
 
@@ -22,10 +14,10 @@ const getLatestPrice = async (schemeCode: string) => {
   return null
 }
 
-const getPortfolio = async (transactions: Transaction[]) => {
-  let ts = transactions.slice()
+const getPortfolio = async (transactions: Transaction[]): Promise<Portfolio> => {
+  const ts = transactions.slice()
   ts.sort(byDateAsc)
-  let out = []
+  const out: Portfolio = []
 
   ts.forEach(transaction => {
     const i = out.findIndex(o => o.mfName === transaction.mfName)
@@ -35,7 +27,7 @@ const getPortfolio = async (transactions: Transaction[]) => {
         out[i].existingFunds.push({
           price: transaction.price * 10000,
           units: transaction.units * 1000,
-          date: new Date(transaction.date)
+          date: new Date(transaction.date),
         })
       }
       else {
