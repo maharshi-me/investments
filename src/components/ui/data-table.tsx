@@ -33,13 +33,13 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   searchValue: string
   setSearchValue: (value: string) => void
-  renderSubComponent?: (props: { row: TData }) => React.ReactElement
+  renderSubComponent?: (props: { rowData: TData }) => React.ReactElement
   showCollapsableRows?: boolean
   showColumnHiding?: boolean
   footer?: {
-    value: string
+    value: string | number
     colSpan: number
-    align?: "right"
+    align?: "right" | "left"
     render?: () => React.ReactNode
   }[]
 }
@@ -60,24 +60,22 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns: [
-      ...(showCollapsableRows ? [
-        {
-          id: 'expander',
-          header: () => null,
-          cell: ({ row }) => (
-            <button
-              onClick={() => row.toggleExpanded()}
-              className={`p-1 transition-transform ${row.getIsExpanded() ? 'rotate-90' : ''}`}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          ),
-          enableHiding: false,
-        },
-      ] : []),
+    columns: showCollapsableRows ? [
+      {
+        id: 'expander',
+        header: () => null,
+        cell: ({ row }) => (
+          <button
+            onClick={() => row.toggleExpanded()}
+            className={`p-1 transition-transform ${row.getIsExpanded() ? 'rotate-90' : ''}`}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        ),
+        enableHiding: false,
+      },
       ...columns
-    ],
+    ] : columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -174,7 +172,7 @@ export function DataTable<TData, TValue>({
                   {row.getIsExpanded() && renderSubComponent && showCollapsableRows && (
                     <TableRow>
                       <TableCell colSpan={row.getVisibleCells().length}>
-                        {renderSubComponent({ row })}
+                        {renderSubComponent({ rowData: row.original })}
                       </TableCell>
                     </TableRow>
                   )}

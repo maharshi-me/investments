@@ -16,6 +16,8 @@ import { Trash2Icon } from "lucide-react"
 import { Loader2Icon } from "lucide-react"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
 import { fetchNavHistory } from "@/utils/nav-fetcher"
+import { InvestmentsData } from "@/types/investments"
+import { TextItem } from "pdfjs-dist/types/src/display/api"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
 
@@ -25,7 +27,7 @@ export default function SwitchDemo() {
   const [password, setPassword] = useState<string>("")
   const [error, setError] = useState<string>("")
   const [showPassword, setShowPassword] = useState(false)
-  const [json, setJson] = useState<any>(null)
+  const [json, setJson] = useState<InvestmentsData | null>(null)
   const [isPasswordProtected, setIsPasswordProtected] = useState(false)
   const [hasExistingData, setHasExistingData] = useState(false)
   const { toast } = useToast()
@@ -37,24 +39,15 @@ export default function SwitchDemo() {
     const data = localStorage.getItem('investmentsData')
     if (data) {
       setHasExistingData(true)
-      const parsedData = JSON.parse(data)
+      const parsedData = JSON.parse(data) as InvestmentsData
       setJson(parsedData)
     }
     setIsLoading(false)
   }, [])
 
-  const changeTheme = (checked: boolean) => {
-    if (checked) {
-      setTheme("dark")
-    }
-    else{
-      setTheme("light")
-    }
-  }
-
   const checkIfPasswordProtected = async (file: File) => {
+    const blobUrl = URL.createObjectURL(file)
     try {
-      const blobUrl = URL.createObjectURL(file)
       const loadingTask = getDocument({
         url: blobUrl,
       })
@@ -62,8 +55,8 @@ export default function SwitchDemo() {
       setIsPasswordProtected(false)
       setPassword("")
       URL.revokeObjectURL(blobUrl)
-    } catch (err: any) {
-      if (err.name === 'PasswordException') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'PasswordException') {
         setIsPasswordProtected(true)
         setPassword("") // Set default password for protected files
       }
@@ -103,17 +96,18 @@ export default function SwitchDemo() {
           const pageText = await page.getTextContent()
 
           pageText.items.forEach(item => {
-            if (item.hasEOL) {
-              if (textUtils.isText(item.str)) {
-                text += item.str + '\n'
+            const textItem = item as TextItem
+            if (textItem.hasEOL) {
+              if (textUtils.isText(textItem.str)) {
+                text += textItem.str + '\n'
               }
               else {
                 text += '\n'
               }
             }
             else {
-              if (textUtils.isText(item.str)) {
-                text += item.str + ' '
+              if (textUtils.isText(textItem.str)) {
+                text += textItem.str + ' '
               }
             }
           })
@@ -157,12 +151,11 @@ export default function SwitchDemo() {
         })
 
         setIsProcessing(false)
-      } catch (err: any) {
-        console.log(err)
-        if (err.name === 'PasswordException') {
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'PasswordException') {
           setError("Invalid password. Please try again.")
         }
-        else if (err.message) {
+        else if (err instanceof Error && err.message) {
           setError(err.message)
         }
         else {
@@ -192,7 +185,7 @@ export default function SwitchDemo() {
         <div className="p-4 pt-0" />
         <div className="flex items-center space-x-2">
           <Label htmlFor="dark-mode">Light</Label>
-          <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={changeTheme}/>
+          <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={checked => setTheme(checked ? "dark" : "light")} />
           <Label htmlFor="dark-mode">Dark</Label>
         </div>
 
@@ -253,11 +246,13 @@ export default function SwitchDemo() {
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col gap-2">
                     <TypographySmall text="Current Data" />
-                    <div className="text-sm text-muted-foreground">
-                      <div>From: {new Date(json?.meta?.from).toLocaleDateString()}</div>
-                      <div>To: {new Date(json?.meta?.to).toLocaleDateString()}</div>
-                      <div>Exported: {new Date(json?.meta?.exportedAt).toLocaleString()}</div>
-                    </div>
+                    {json && (
+                      <div className="text-sm text-muted-foreground">
+                        <div>From: {new Date(json.meta.from).toLocaleDateString()}</div>
+                        <div>To: {new Date(json.meta.to).toLocaleDateString()}</div>
+                        <div>Exported: {new Date(json.meta.exportedAt).toLocaleString()}</div>
+                      </div>
+                    )}
                   </div>
                   <Button
                     variant="ghost"

@@ -2,47 +2,17 @@ import { useState } from "react"
 
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
-
-interface Transaction {
-  date: Date
-  mfNameFull: string
-  mfName: string
-  type: string
-  amount: number
-  units: number
-  price: number
-  folio: string
-  isin: string
-  matchingScheme: {
-    schemeName: string
-    schemeCode: string
-  }
-}
+import { Transaction } from "@/types/investments"
+import { formatCurrency } from "@/utils/functions/formatCurrency"
+import { formatDate } from "@/utils/functions/formatDate"
 
 export default function Transactions({ transactions }: { transactions: Transaction[] }) {
   const [fundFilter, setFundFilter] = useState("")
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount)
-  }
 
   const filteredTransactions = transactions.filter(transaction =>
     transaction.mfName.toLowerCase().includes(fundFilter.toLowerCase())
   )
 
-  // Add columns definition
   const columns: ColumnDef<Transaction>[] = [
     {
       accessorKey: "date",

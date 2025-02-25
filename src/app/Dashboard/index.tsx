@@ -18,6 +18,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 import Cards from "./Cards"
+import { Transaction, Portfolio } from "@/types/investments"
 
 const chartData = [
   { month: "Jan 2025", transactions: 186 },
@@ -41,7 +42,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-type TransactionsChartType = "last_12_months" | "anually" | "all_time"
+type TransactionsChartType = "last_12_months" | "annually" | "all_time"
 
 const transactionsOptions: {
   label: string
@@ -54,8 +55,8 @@ const transactionsOptions: {
     description: "Showing total transactions for last 12 months",
   },
   {
-    label: "Anually",
-    value: "anually",
+    label: "Annually",
+    value: "annually",
     description: "Showing total transactions for each year",
   },
   {
@@ -65,10 +66,16 @@ const transactionsOptions: {
   }
 ]
 
-export default function Dashboard({ portfolio }: { transactions: any[], portfolio: any[] }) {
+function findOrThrow<T>(array: T[], predicate: (item: T) => boolean): T {
+  const result = array.find(predicate);
+  if (!result) throw new Error("Item not found");
+  return result;
+}
+
+export default function Dashboard({ portfolio }: { transactions: Transaction[], portfolio: Portfolio }) {
   const [transactionsChartType, setTransactionsChartType] = useState<TransactionsChartType>(transactionsOptions[0].value)
 
-  const activeMonthData = transactionsOptions.find((option) => option.value === transactionsChartType)
+  const activeMonthData = findOrThrow(transactionsOptions, (option) => option.value === transactionsChartType)
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -78,7 +85,7 @@ export default function Dashboard({ portfolio }: { transactions: any[], portfoli
           <CardHeader className="flex-row items-start space-y-0 pb-0">
             <div className="grid gap-1">
               <CardTitle>Transactions</CardTitle>
-              <CardDescription>{activeMonthData?.description}</CardDescription>
+              <CardDescription>{activeMonthData.description}</CardDescription>
             </div>
             <Select value={transactionsChartType} onValueChange={(value) => setTransactionsChartType(value as TransactionsChartType)}>
               <SelectTrigger
@@ -140,7 +147,7 @@ export default function Dashboard({ portfolio }: { transactions: any[], portfoli
           </CardContent>
           <CardFooter className="flex-col items-start gap-2 text-sm">
             <div className="leading-none text-muted-foreground">
-              {activeMonthData?.description}
+              {activeMonthData.description}
             </div>
           </CardFooter>
         </Card>

@@ -10,28 +10,135 @@ import {  TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "
 import { formatCurrency } from "@/utils/functions/formatCurrency"
 import { renderProfit } from "@/utils/functions/renderProfit"
 import getSummary from "@/utils/functions/getSummary"
+import { PortfolioRow } from "@/types/investments"
+import { Portfolio as PortfolioType } from "@/types/investments"
+import { formatDate } from "@/utils/functions/formatDate"
 
-interface PortfolioRow {
-  mfName: string
-  invested: number
-  redemption: number
-  netInvestment: number
-  units: number
-  currentUnits: number
-  currentNav?: number
-  currentValue?: number
-  folio: string
+const formatUnits = (units: number) => {
+  return new Intl.NumberFormat('en-IN', {
+    maximumFractionDigits: 3
+  }).format(units)
 }
 
-export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) {
-  const currentDate = new Date()
+const withZeroUnitsColumns: ColumnDef<PortfolioRow>[] = [
+  {
+    accessorKey: "mfName",
+    header: "Fund Name",
+    id: "Fund Name",
+    enableHiding: false,
+  },
+  {
+    accessorKey: "currentUnits",
+    header: () => (
+      <div className="text-right">Current Units</div>
+    ),
+    id: "Current Units",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatUnits(row.original.currentUnits)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "currentInvested",
+    header: () => (
+      <div className="text-right">Current Invested</div>
+    ),
+    id: "Current Invested",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatCurrency(row.original.currentInvested)}
+      </div>
+    ),
+    enableHiding: false,
+  },
+  {
+    accessorKey: "profit",
+    header: () => (
+      <div className="text-right">Current Returns</div>
+    ),
+    id: "Current Returns",
+    cell: ({ row }) => renderProfit(row.original.profit),
+  },
+  {
+    accessorKey: "realisedProfit",
+    header: () => (
+      <div className="text-right">Realised Returns</div>
+    ),
+    id: "Realised Returns",
+    cell: ({ row }) => renderProfit(row.original.realisedProfit),
+  },
+  {
+    accessorKey: "currentValue",
+    header: () => (
+      <div className="text-right">Current Value</div>
+    ),
+    id: "Current Value",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatCurrency(row.original.currentValue)}
+      </div>
+    ),
+    enableHiding: false,
+  }
+]
 
-  const oneYearAgo = new Date()
-  oneYearAgo.setFullYear(currentDate.getFullYear() - 1)
+const withoutZeroUnitsColumns: ColumnDef<PortfolioRow>[] = [
+  {
+    accessorKey: "mfName",
+    header: "Fund Name",
+    id: "Fund Name",
+    enableHiding: false,
+  },
+  {
+    accessorKey: "currentUnits",
+    header: () => (
+      <div className="text-right">Current Units</div>
+    ),
+    id: "Current Units",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatUnits(row.original.currentUnits)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "currentInvested",
+    header: () => (
+      <div className="text-right">Current Invested</div>
+    ),
+    id: "Current Invested",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatCurrency(row.original.currentInvested)}
+      </div>
+    ),
+    enableHiding: false,
+  },
+  {
+    accessorKey: "profit",
+    header: () => (
+      <div className="text-right">Current Returns</div>
+    ),
+    id: "Current Returns",
+    cell: ({ row }) => renderProfit(row.original.profit),
+  },
+  {
+    accessorKey: "currentValue",
+    header: () => (
+      <div className="text-right">Current Value</div>
+    ),
+    id: "Current Value",
+    cell: ({ row }) => (
+      <div className="text-right">
+        {formatCurrency(row.original.currentValue)}
+      </div>
+    ),
+    enableHiding: false,
+  }
+]
 
-  const threeYearsAgo = new Date();
-  threeYearsAgo.setFullYear(currentDate.getFullYear() - 3)
-
+export default function Portfolio({ portfolio }: { portfolio: PortfolioType }) {
   const [fundFilter, setFundFilter] = useState("")
   const [showZeroUnits, setShowZeroUnits] = useState(true)
 
@@ -41,102 +148,7 @@ export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) 
     row.mfName.toLowerCase().includes(fundFilter.toLowerCase())
   ).filter(row => showZeroUnits ? true : Math.abs(row.currentUnits) > 0.001)
 
-
-  const formatDate = (date: Date) => {
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    })
-  }
-
-  const formatUnits = (units: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      maximumFractionDigits: 3
-    }).format(units)
-  }
-
-  const columns: ColumnDef<PortfolioRow>[] = [
-    {
-      accessorKey: "mfName",
-      header: "Fund Name",
-      id: "Fund Name",
-      enableHiding: false,
-    },
-    {
-      accessorKey: "currentUnits",
-      header: () => (
-        <div className="text-right">Current Units</div>
-      ),
-      id: "Current Units",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatUnits(row.original.currentUnits)}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "currentInvested",
-      header: () => (
-        <div className="text-right">Current Invested</div>
-      ),
-      id: "Current Invested",
-      cell: ({ row }) => (
-        <div className="text-right">
-          {formatCurrency(row.original.currentInvested)}
-        </div>
-      ),
-      enableHiding: false,
-    },
-    {
-      accessorKey: "profit",
-      header: () => (
-        <div className="text-right">Current Returns</div>
-      ),
-      id: "Current Returns",
-      cell: ({ row }) => renderProfit(row.original.profit),
-    },
-    ...(showZeroUnits ? [
-      {
-        accessorKey: "realisedProfit",
-        header: () => (
-          <div className="text-right">Realised Returns</div>
-        ),
-        id: "Realised Returns",
-        cell: ({ row }) => renderProfit(row.original.realisedProfit),
-      },
-      {
-        accessorKey: "currentValue",
-        header: () => (
-          <div className="text-right">Current Value</div>
-        ),
-        id: "Current Value",
-        cell: ({ row }) => (
-          <div className="text-right">
-            {formatCurrency(row.original.currentValue)}
-          </div>
-        ),
-        enableHiding: false,
-      }
-    ] : [
-      {
-        accessorKey: "currentValue",
-        header: () => (
-          <div className="text-right">Current Value</div>
-        ),
-        id: "Current Value",
-        cell: ({ row }) => (
-          <div className="text-right">
-            {formatCurrency(row.original.currentValue)}
-          </div>
-        ),
-        enableHiding: false,
-      }
-    ])
-  ]
-
-  const renderSubComponent = ({ row }: { row: PortfolioRow }) => {
-    const fund = row.original
+  const renderSubComponent = ({ rowData }: { rowData: PortfolioRow }) => {
     return (
       <div className="p-4">
         <h4 className="font-medium mb-2">Current Holdings</h4>
@@ -152,7 +164,7 @@ export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {fund.existingFunds.map((transaction: any, i: number) => (
+            {rowData.existingFunds.map((transaction, i) => (
               <TableRow key={i}>
                 <TableCell>{formatDate(transaction.date)}</TableCell>
                 <TableCell className="text-right">{formatUnits(transaction.units)}</TableCell>
@@ -181,13 +193,13 @@ export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) 
         </div>
       </div>
       <DataTable
-        columns={columns}
+        columns={showZeroUnits ? withZeroUnitsColumns : withoutZeroUnitsColumns}
         data={filteredPortfolio}
         searchValue={fundFilter}
         setSearchValue={setFundFilter}
         renderSubComponent={renderSubComponent}
         showCollapsableRows
-        footer={[
+        footer={showZeroUnits ? [
           {
             value: "Total",
             colSpan: 3
@@ -198,17 +210,38 @@ export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) 
             align: "right"
           },
           {
-            value: renderProfit(currentProfit),
+            value: currentProfit,
+            colSpan: 1,
+            align: "right",
+            render: () => renderProfit(currentProfit),
+          },
+          {
+            value: realisedProfit,
+            colSpan: 1,
+            align: "right",
+            render: () => renderProfit(realisedProfit),
+          },
+          {
+            value: formatCurrency(totalValue),
+            colSpan: 1,
+            align: "right"
+          }
+        ] : [
+          {
+            value: "Total",
+            colSpan: 3
+          },
+          {
+            value: formatCurrency(invested),
             colSpan: 1,
             align: "right"
           },
-          ...(showZeroUnits ? [
-            {
-              value: renderProfit(realisedProfit),
-              colSpan: 1,
-              align: "right"
-            }
-          ] : []),
+          {
+            value: currentProfit,
+            colSpan: 1,
+            align: "right",
+            render: () => renderProfit(currentProfit),
+          },
           {
             value: formatCurrency(totalValue),
             colSpan: 1,

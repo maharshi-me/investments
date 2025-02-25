@@ -15,8 +15,9 @@ import { fetchNavHistory } from "@/utils/nav-fetcher"
 import getPortfolio from "@/utils/get-portfolio"
 import { Button } from "./components/ui/button";
 import { TypographySmall } from "./components/ui/typography-small";
+import { InvestmentsData, Transaction, Portfolio as PortfolioType } from "@/types/investments";
 
-const TransactionsGuard = ({ transactions, portfolio, Component }: { transactions: any[], portfolio: any[], Component: React.ComponentType<{ transactions: any[], portfolio: any[] }> }) => {
+const TransactionsGuard = ({ transactions, portfolio, Component }: { transactions: Transaction[], portfolio: PortfolioType, Component: React.ComponentType<{ transactions: Transaction[], portfolio: PortfolioType }> }) => {
   const navigate = useNavigate()
 
   if (!transactions.length) {
@@ -37,8 +38,8 @@ const TransactionsGuard = ({ transactions, portfolio, Component }: { transaction
 
 function App() {
   const [isLoading, setIsLoading] = useState(true)
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [portfolio, setPortfolio] = useState<any[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [portfolio, setPortfolio] = useState<PortfolioType>([])
 
   useEffect(() => {
     const init = async () => {
@@ -47,7 +48,7 @@ function App() {
       const data = localStorage.getItem('investmentsData')
 
       if (data) {
-        const parsedData = JSON.parse(data)
+        const parsedData = JSON.parse(data) as InvestmentsData
         const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
           new Date(b.date).getTime() - new Date(a.date).getTime()
         )
