@@ -1,110 +1,150 @@
-import { setPageTitle } from "@/utils/page-title"
-import { useEffect, useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatCurrency } from "@/utils/functions/formatCurrency"
-import getPortfolio from "@/utils/get-portfolio"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { TypographySmall } from "@/components/ui/typography-small"
-import { Loader2Icon } from "lucide-react"
-import { TypographyH2 } from "@/components/ui/typography/h2"
-import getSummary from "@/utils/functions/getSummary"
-import { renderProfit } from "@/utils/functions/renderProfit"
+import { useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 
-export default function Dashboard() {
-  const [transactions, setTransactions] = useState<any[]>([])
-  const [portfolio, setPortfolio] = useState<any[]>([])
-  const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(true)
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
-  const { totalValue, invested, allTimeProfit } = getSummary(portfolio)
+import { Bar, BarChart, CartesianGrid, XAxis, Cell } from "recharts"
 
-  console.log('portfolio', portfolio)
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import Cards from "./Cards"
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = localStorage.getItem('investmentsData')
-      if (data) {
-        const parsedData = JSON.parse(data)
-      const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-      setTransactions(sortedTransactions)
-        const portfolio = await getPortfolio(sortedTransactions)
-        setPortfolio(portfolio)
-      }
-      setIsLoading(false)
-    }
-    fetchData()
-  }, [])
-  useEffect(() => {
-    setPageTitle("Dashboard")
-  }, [])
+const chartData = [
+  { month: "Jan 2025", transactions: 186 },
+  { month: "Feb 2025", transactions: 305 },
+  { month: "Mar 2025", transactions: -237 },
+  { month: "Apr 2025", transactions: 73 },
+  { month: "May 2025", transactions: 209 },
+  { month: "Jun 2025", transactions: 214 },
+  { month: "Jul 2025", transactions: 214 },
+  { month: "Aug 2025", transactions: 214 },
+  { month: "Sep 2025", transactions: 214 },
+  { month: "Oct 2025", transactions: 214 },
+  { month: "Nov 2025", transactions: 214 },
+  { month: "Dec 2025", transactions: 214 },
+]
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-4">
-        <Loader2Icon className="h-6 w-6 animate-spin" />
-      </div>
-    )
+const chartConfig = {
+  transactions: {
+    label: "Transactions",
+    color: "hsl(var(--chart-1))",
+  },
+} satisfies ChartConfig
+
+type TransactionsChartType = "last_12_months" | "anually" | "all_time"
+
+const transactionsOptions: {
+  label: string
+  value: TransactionsChartType
+  description: string
+}[] = [
+  {
+    label: "Last 12 Months",
+    value: "last_12_months",
+    description: "Showing total transactions for last 12 months",
+  },
+  {
+    label: "Anually",
+    value: "anually",
+    description: "Showing total transactions for each year",
+  },
+  {
+    label: "All Time",
+    value: "all_time",
+    description: "Showing total transactions for all time",
   }
+]
 
-  if (!transactions.length) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-        <TypographySmall text="No transactions found. Please import your CAS first." />
-        <Button onClick={() => navigate('/settings')}>
-          Go to Import
-        </Button>
-      </div>
-    )
-  }
+export default function Dashboard({ portfolio }: { transactions: any[], portfolio: any[] }) {
+  const [transactionsChartType, setTransactionsChartType] = useState<TransactionsChartType>(transactionsOptions[0].value)
+
+  const activeMonthData = transactionsOptions.find((option) => option.value === transactionsChartType)
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="grid auto-rows-min gap-4 xl:grid-cols-4 md:grid-cols-2 sm:grid-cols-1">
+      <Cards portfolio={portfolio} />
+      <div className="grid auto-rows-min gap-4 xl:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
         <Card>
-          <CardHeader>
-            <CardTitle>
-              <TypographySmall text="Total Value" />
-            </CardTitle>
+          <CardHeader className="flex-row items-start space-y-0 pb-0">
+            <div className="grid gap-1">
+              <CardTitle>Transactions</CardTitle>
+              <CardDescription>{activeMonthData?.description}</CardDescription>
+            </div>
+            <Select value={transactionsChartType} onValueChange={(value) => setTransactionsChartType(value as TransactionsChartType)}>
+              <SelectTrigger
+                className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
+                aria-label="Select a value"
+              >
+                <SelectValue placeholder="Select a value" />
+              </SelectTrigger>
+              <SelectContent align="end" className="rounded-xl">
+                {transactionsOptions.map(({ label, value }) =>
+                  <SelectItem
+                    key={value}
+                    value={value}
+                    className="rounded-lg [&_span]:flex"
+                  >
+                    <div className="flex items-center gap-2 text-xs">
+                      {label}
+                    </div>
+                  </SelectItem>
+                  )}
+              </SelectContent>
+            </Select>
           </CardHeader>
           <CardContent>
-            <TypographyH2 text={formatCurrency(totalValue)} />
+            <ChartContainer config={chartConfig}>
+              <BarChart accessibilityLayer data={chartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="month"
+                  tickLine={false}
+                  tickMargin={10}
+                  axisLine={false}
+                  tickFormatter={(value) => value.slice(0, 3)}
+                />
+                <ChartTooltip
+                  cursor={false}
+                  content={
+                    <ChartTooltipContent
+                      hideLabel
+                      className="w-[200px]"
+                      nameKey="transactions"
+                    />
+                  }
+                />
+                <Bar dataKey="transactions" radius={8}>
+                {chartData.map((item) => (
+                  <Cell
+                    key={item.month}
+                    fill={
+                      item.transactions > 0
+                        ? "hsl(var(--chart-1))"
+                        : "hsl(var(--chart-2))"
+                    }
+                  />
+                ))}
+                </Bar>
+              </BarChart>
+            </ChartContainer>
           </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <TypographySmall text="Invested" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TypographyH2 text={formatCurrency(invested)} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <TypographySmall text="All Time Returns" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TypographyH2 text={renderProfit(allTimeProfit, 'currency', 'left')} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <TypographySmall text="Monthly Income if retired" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TypographyH2 text={formatCurrency(totalValue / 25 / 12)} />
-          </CardContent>
+          <CardFooter className="flex-col items-start gap-2 text-sm">
+            <div className="leading-none text-muted-foreground">
+              {activeMonthData?.description}
+            </div>
+          </CardFooter>
         </Card>
       </div>
-      <div className="min-h-[100vh] flex-1 rounded-xl bg-muted/50 md:min-h-min" />
     </div>
   )
 }

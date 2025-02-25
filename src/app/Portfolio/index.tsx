@@ -1,35 +1,15 @@
-import { useEffect, useState } from "react"
-import { TypographySmall } from "@/components/ui/typography-small"
-import { useNavigate } from "react-router-dom"
-import { Button } from "@/components/ui/button"
-import { Loader2Icon } from "lucide-react"
-import { setPageTitle } from "@/utils/page-title"
+import { useState } from "react"
+
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 
 import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 
-import getPortfolio from '@/utils/get-portfolio'
 import {  TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
 import { formatCurrency } from "@/utils/functions/formatCurrency"
 import { renderProfit } from "@/utils/functions/renderProfit"
 import getSummary from "@/utils/functions/getSummary"
-interface Transaction {
-  date: Date
-  mfNameFull: string
-  mfName: string
-  type: string
-  amount: number
-  units: number
-  price: number
-  folio: string
-  isin: string
-  matchingScheme: {
-    schemeName: string
-    schemeCode: string
-  }
-}
 
 interface PortfolioRow {
   mfName: string
@@ -37,12 +17,13 @@ interface PortfolioRow {
   redemption: number
   netInvestment: number
   units: number
+  currentUnits: number
   currentNav?: number
   currentValue?: number
   folio: string
 }
 
-export default function Portfolio() {
+export default function Portfolio({ portfolio }: { portfolio: PortfolioRow[] }) {
   const currentDate = new Date()
 
   const oneYearAgo = new Date()
@@ -51,37 +32,10 @@ export default function Portfolio() {
   const threeYearsAgo = new Date();
   threeYearsAgo.setFullYear(currentDate.getFullYear() - 3)
 
-
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [portfolio, setPortfolio] = useState<PortfolioRow[]>([])
-  const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(true)
   const [fundFilter, setFundFilter] = useState("")
   const [showZeroUnits, setShowZeroUnits] = useState(true)
 
   const { totalValue, invested, currentProfit, realisedProfit } = getSummary(portfolio)
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = localStorage.getItem('investmentsData')
-      if (data) {
-        const parsedData = JSON.parse(data)
-      const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-      setTransactions(sortedTransactions)
-        const portfolio = await getPortfolio(sortedTransactions)
-        setPortfolio(portfolio)
-      }
-      setIsLoading(false)
-    }
-    fetchData()
-  }, [])
-
-  useEffect(() => {
-    setPageTitle("Portfolio")
-  }, [])
-
 
   const filteredPortfolio = Object.values(portfolio).filter(row =>
     row.mfName.toLowerCase().includes(fundFilter.toLowerCase())
@@ -205,30 +159,11 @@ export default function Portfolio() {
                 <TableCell className="text-right">{formatCurrency(transaction.invested)}</TableCell>
                 <TableCell className="text-right">{renderProfit(transaction.profit)}</TableCell>
                 <TableCell className="text-right">{renderProfit(transaction.gain, 'percentage')}</TableCell>
-                <TableCell className="text-right">{formatCurrency(transaction.units * transaction.price)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(transaction.invested + transaction.profit)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-4">
-        <Loader2Icon className="h-6 w-6 animate-spin" />
-      </div>
-    )
-  }
-
-  if (!transactions.length) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 p-4">
-        <TypographySmall text="No transactions found. Please import your CAS first." />
-        <Button onClick={() => navigate('/settings')}>
-          Go to Import
-        </Button>
       </div>
     )
   }

@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/sidebar"
 import { useLocation } from "react-router-dom"
 import { Loader2Icon } from "lucide-react"
-
-
+import { setPageTitle } from "@/utils/page-title"
+import { useEffect } from "react"
 export default function BaseLayout({
   children,
   isLoading,
@@ -38,6 +38,10 @@ export default function BaseLayout({
         return 'Dashboard'
     }
   }
+
+  useEffect(() => {
+    setPageTitle(getPageTitle(location.pathname))
+  }, [location.pathname])
 
   return (
     <SidebarProvider>

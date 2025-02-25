@@ -15,7 +15,6 @@ import { InfoIcon } from "lucide-react"
 import { Trash2Icon } from "lucide-react"
 import { Loader2Icon } from "lucide-react"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
-import { setPageTitle } from "@/utils/page-title"
 import { fetchNavHistory } from "@/utils/nav-fetcher"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
@@ -42,10 +41,6 @@ export default function SwitchDemo() {
       setJson(parsedData)
     }
     setIsLoading(false)
-  }, [])
-
-  useEffect(() => {
-    setPageTitle("Settings")
   }, [])
 
   const changeTheme = (checked: boolean) => {
