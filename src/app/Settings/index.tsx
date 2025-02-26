@@ -1,65 +1,40 @@
+import { useNavigate } from "react-router-dom"
+import { useState } from "react"
+
+import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
+import { InfoIcon, Trash2Icon, Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
+import { TextItem } from "pdfjs-dist/types/src/display/api"
+
+import { Button } from "@/components/ui/button"
+import { fetchNavHistory } from "@/utils/nav-fetcher"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
+import { ToastAction } from "@/components/ui/toast"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { TypographySmall } from "@/components/ui/typography-small"
 import { useTheme } from "@/components/theme-provider"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
-import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
-import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { ToastAction } from "@/components/ui/toast"
-import { useNavigate } from "react-router-dom"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { InfoIcon } from "lucide-react"
-import { Trash2Icon } from "lucide-react"
-import { Loader2Icon } from "lucide-react"
-import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
-import { setPageTitle } from "@/utils/page-title"
-import { fetchNavHistory } from "@/utils/nav-fetcher"
+
+import { Meta, Transaction } from "@/types/investments"
 
 GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`
 
-export default function SwitchDemo() {
+export default function Settings({ meta, transactions, readData }: { meta?: Meta, transactions: Transaction[], readData: () => void }) {
   const { theme, setTheme } = useTheme()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [password, setPassword] = useState<string>("")
   const [error, setError] = useState<string>("")
   const [showPassword, setShowPassword] = useState(false)
-  const [json, setJson] = useState<any>(null)
   const [isPasswordProtected, setIsPasswordProtected] = useState(false)
-  const [hasExistingData, setHasExistingData] = useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
-  const [isLoading, setIsLoading] = useState(true)
   const [isProcessing, setIsProcessing] = useState(false)
 
-  useEffect(() => {
-    const data = localStorage.getItem('investmentsData')
-    if (data) {
-      setHasExistingData(true)
-      const parsedData = JSON.parse(data)
-      setJson(parsedData)
-    }
-    setIsLoading(false)
-  }, [])
-
-  useEffect(() => {
-    setPageTitle("Settings")
-  }, [])
-
-  const changeTheme = (checked: boolean) => {
-    if (checked) {
-      setTheme("dark")
-    }
-    else{
-      setTheme("light")
-    }
-  }
-
   const checkIfPasswordProtected = async (file: File) => {
+    const blobUrl = URL.createObjectURL(file)
     try {
-      const blobUrl = URL.createObjectURL(file)
       const loadingTask = getDocument({
         url: blobUrl,
       })
@@ -67,8 +42,8 @@ export default function SwitchDemo() {
       setIsPasswordProtected(false)
       setPassword("")
       URL.revokeObjectURL(blobUrl)
-    } catch (err: any) {
-      if (err.name === 'PasswordException') {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'PasswordException') {
         setIsPasswordProtected(true)
         setPassword("") // Set default password for protected files
       }
@@ -108,17 +83,18 @@ export default function SwitchDemo() {
           const pageText = await page.getTextContent()
 
           pageText.items.forEach(item => {
-            if (item.hasEOL) {
-              if (textUtils.isText(item.str)) {
-                text += item.str + '\n'
+            const textItem = item as TextItem
+            if (textItem.hasEOL) {
+              if (textUtils.isText(textItem.str)) {
+                text += textItem.str + '\n'
               }
               else {
                 text += '\n'
               }
             }
             else {
-              if (textUtils.isText(item.str)) {
-                text += item.str + ' '
+              if (textUtils.isText(textItem.str)) {
+                text += textItem.str + ' '
               }
             }
           })
@@ -131,8 +107,8 @@ export default function SwitchDemo() {
 
         const json = await getJsonFromTxt(filteredText)
 
-        setJson(json)
         localStorage.setItem('investmentsData', JSON.stringify(json))
+        await readData()
 
         // Fetch fresh NAV data
         await fetchNavHistory()
@@ -144,7 +120,6 @@ export default function SwitchDemo() {
         setSelectedFile(null)
         setPassword("")
         setIsPasswordProtected(false)
-        setHasExistingData(true)
 
         // Reset file input
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
@@ -162,12 +137,11 @@ export default function SwitchDemo() {
         })
 
         setIsProcessing(false)
-      } catch (err: any) {
-        console.log(err)
-        if (err.name === 'PasswordException') {
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'PasswordException') {
           setError("Invalid password. Please try again.")
         }
-        else if (err.message) {
+        else if (err instanceof Error && err.message) {
           setError(err.message)
         }
         else {
@@ -181,9 +155,9 @@ export default function SwitchDemo() {
   const handleClearData = async () => {
     // Clear localStorage
     localStorage.removeItem('investmentsData')
-
-    setJson(null)
-    setHasExistingData(false)
+    console.log('Data cleareds')
+    await readData()
+    console.log('Data cleared')
     toast({
       title: "Data cleared",
       description: "All imported data has been removed.",
@@ -197,7 +171,7 @@ export default function SwitchDemo() {
         <div className="p-4 pt-0" />
         <div className="flex items-center space-x-2">
           <Label htmlFor="dark-mode">Light</Label>
-          <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={changeTheme}/>
+          <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={checked => setTheme(checked ? "dark" : "light")} />
           <Label htmlFor="dark-mode">Dark</Label>
         </div>
 
@@ -236,32 +210,26 @@ export default function SwitchDemo() {
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            {isLoading ? (
-              <div className="rounded-lg border p-4 max-w-sm flex items-center justify-center">
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-              </div>
-            ) : hasExistingData && (
+            {transactions.length ? (
               <TypographySmall
-                text={`Last imported: ${json?.transactions?.length} transactions`}
+                text={`Last imported: ${transactions.length} transactions`}
                 className="text-muted-foreground"
               />
+            ) : (
+              <></>
             )}
           </div>
           <div className="p-4 pt-0" />
           <div className="flex flex-col gap-4">
-            {isLoading ? (
-              <div className="rounded-lg border p-4 max-w-sm flex items-center justify-center">
-                <Loader2Icon className="h-4 w-4 animate-spin" />
-              </div>
-            ) : hasExistingData && (
+            {meta && (
               <div className="rounded-lg border p-4 max-w-sm">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col gap-2">
                     <TypographySmall text="Current Data" />
                     <div className="text-sm text-muted-foreground">
-                      <div>From: {new Date(json?.meta?.from).toLocaleDateString()}</div>
-                      <div>To: {new Date(json?.meta?.to).toLocaleDateString()}</div>
-                      <div>Exported: {new Date(json?.meta?.exportedAt).toLocaleString()}</div>
+                      <div>From: {new Date(meta.from).toLocaleDateString()}</div>
+                      <div>To: {new Date(meta.to).toLocaleDateString()}</div>
+                      <div>Exported: {new Date(meta.exportedAt).toLocaleString()}</div>
                     </div>
                   </div>
                   <Button
@@ -327,7 +295,7 @@ export default function SwitchDemo() {
                       <Loader2Icon className="h-4 w-4 animate-spin" />
                       Processing...
                     </div>
-                  ) : hasExistingData ? (
+                  ) : transactions.length ? (
                     'Update Data'
                   ) : (
                     'Import'

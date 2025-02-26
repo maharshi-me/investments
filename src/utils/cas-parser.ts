@@ -1,3 +1,5 @@
+import { InvestmentsData, Meta, Holder, Transaction } from "@/types/investments"
+
 export const textUtils = {
   isText: (str: string) => str.trim().length > 0,
   filterLinesWithText: (lines: string[]) => lines.filter(textUtils.isText),
@@ -142,7 +144,7 @@ export const getFilteredText = (text: string) => {
   let retry = true
   while(retry) {
     retry = false
-    let linesToDelete = []
+    const linesToDelete = []
 
     newFilteredLines.forEach((line, index) => {
       if (index > 3 && (line.length > 11) && (line[2] === '-') && (line[6] === '-') && (line[11] === ' ') && (newFilteredLines[index + 1])) {
@@ -164,7 +166,7 @@ export const getFilteredText = (text: string) => {
   return newFilteredLines.join('\n')
 }
 
-export const getJsonFromTxt = async (t: string) => {
+export const getJsonFromTxt = async (t: string): Promise<InvestmentsData> => {
   const lines = t.split('\n')
 
   const transactions = await getTransactions(lines)
@@ -175,6 +177,8 @@ export const getJsonFromTxt = async (t: string) => {
     summary: getSummary(lines),
     transactions: transactions
   }
+
+  console.log('obj', obj)
 
   return obj
 }
@@ -187,7 +191,7 @@ export const strToUnits = num => Math.round((Number(num.replace(',', '')) + Numb
 
 export const getIndexByStartingText = (lines: string[], text: string) => lines.indexOf(lines.filter(line => line.startsWith(text))[0])
 
-export const getTransactions = async (lines: string[]) => {
+export const getTransactions = async (lines: string[]): Promise<Transaction[]> => {
   const response = await fetch('https://api.mfapi.in/mf')
   const mfData = await response.json()
 
@@ -197,8 +201,8 @@ export const getTransactions = async (lines: string[]) => {
 
   filteredLines.forEach((line, index) => {
     if (line.includes("*** Stamp Duty ***")) {
-      let stampDuty = strToPrice(line.split(" ")[1])
-      let amount = strToPrice(filteredLines[index - 1].split(" ")[1])
+      const stampDuty = strToPrice(line.split(" ")[1])
+      const amount = strToPrice(filteredLines[index - 1].split(" ")[1])
 
       filteredLines[index - 1] = filteredLines[index - 1].split(" ")
       filteredLines[index - 1][1] = (amount + stampDuty).toFixed(2)
@@ -251,8 +255,8 @@ export const getTransactions = async (lines: string[]) => {
     else {
       if (line[2] === '-') {
         let amount, units
-        let amountStr = line.split(" ")[1]
-        let unitsStr = line.split(" ")[3]
+        const amountStr = line.split(" ")[1]
+        const unitsStr = line.split(" ")[3]
         let type = 'Investment'
 
         if (amountStr[0] === '(') {
@@ -322,7 +326,7 @@ export const getSummary = (lines: string[]) => {
   }
 }
 
-export const getHolder = (lines: string[]) => {
+export const getHolder = (lines: string[]): Holder => {
   const mobileNumberRowIndex = getIndexByStartingText(lines, 'Mobile')
   const EmailIdRowIndex = getIndexByStartingText(lines, 'Email Id')
 
@@ -334,21 +338,25 @@ export const getHolder = (lines: string[]) => {
   }
 }
 
-export const getMeta = (lines: string[]) => {
+const convertDateToString = (date: Date): string => {
+  return JSON.parse(JSON.stringify(date))
+}
+
+export const getMeta = (lines: string[]): Meta => {
   const timestamp = lines[0].split(' ')[0].split('-')[1]
   const from = lines[2].split(' ')[0].split('-')
   const to = lines[2].split(' ')[2].split('-')
 
   return {
-    exportedAt: new Date(
+    exportedAt: convertDateToString(new Date(
       Number('20' + timestamp.substr(4,2)),
       Number(timestamp.substr(2,2) - 1),
       Number(timestamp.substr(0,2)),
       Number(timestamp.substr(6,2)),
       Number(timestamp.substr(8,2)),
       Number(timestamp.substr(10,2))
-    ),
-    from: new Date(Number(from[2]), MONTHS.indexOf(from[1]), Number(from[0])),
-    to: new Date(Number(to[2]), MONTHS.indexOf(to[1]), Number(to[0]))
+    )),
+    from: convertDateToString(new Date(Number(from[2]), MONTHS.indexOf(from[1]), Number(from[0]))),
+    to: convertDateToString(new Date(Number(to[2]), MONTHS.indexOf(to[1]), Number(to[0])))
   }
 }

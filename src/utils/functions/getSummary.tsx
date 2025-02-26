@@ -1,6 +1,6 @@
-import getPortfolio from '@/utils/get-portfolio'
+import { Portfolio } from '@/types/investments'
 
-const getSummary = (portfolio: any[]) => {
+const getSummary = (portfolio: Portfolio) => {
 
   const totalValue = portfolio.reduce((res, item) => {
     return res + item.currentValue
