@@ -13,9 +13,11 @@ import BaseLayout from "@/layouts/BaseLayout";
 import { fetchNavHistory } from "@/utils/nav-fetcher"
 
 import getPortfolio from "@/utils/get-portfolio"
-import { Button } from "./components/ui/button";
-import { TypographySmall } from "./components/ui/typography-small";
-import { InvestmentsData, Transaction, Portfolio as PortfolioType } from "@/types/investments";
+import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
+import { TypographySmall } from "@/components/ui/typography-small";
+
+import { InvestmentsData, Transaction, Portfolio as PortfolioType, Meta } from "@/types/investments";
 
 const TransactionsGuard = ({ transactions, portfolio, Component }: { transactions: Transaction[], portfolio: PortfolioType, Component: React.ComponentType<{ transactions: Transaction[], portfolio: PortfolioType }> }) => {
   const navigate = useNavigate()
@@ -40,27 +42,33 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [portfolio, setPortfolio] = useState<PortfolioType>([])
+  const [meta, setMeta] = useState<Meta>()
 
-  useEffect(() => {
-    const init = async () => {
-      setIsLoading(true)
-      await fetchNavHistory()
-      const data = localStorage.getItem('investmentsData')
+  const readData = async () => {
+    setIsLoading(true)
+    await fetchNavHistory()
+    const data = localStorage.getItem('investmentsData')
 
-      if (data) {
-        const parsedData = JSON.parse(data) as InvestmentsData
-        const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
-          new Date(b.date).getTime() - new Date(a.date).getTime()
-        )
-        setTransactions(sortedTransactions)
-        const portfolio = await getPortfolio(sortedTransactions)
-        setPortfolio(portfolio)
-      }
-
-      setIsLoading(false)
+    if (data) {
+      const parsedData = JSON.parse(data) as InvestmentsData
+      setMeta(parsedData.meta)
+      const sortedTransactions = [...parsedData.transactions].sort((a, b) =>
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+      setTransactions(sortedTransactions)
+      const portfolio = await getPortfolio(sortedTransactions)
+      setPortfolio(portfolio)
+    } else {
+      setTransactions([])
+      setPortfolio([])
+      setMeta(undefined)
     }
 
-    init()
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    readData()
   }, [])
 
   return (
@@ -71,9 +79,10 @@ function App() {
           <Route path="/portfolio" element={<TransactionsGuard transactions={transactions} portfolio={portfolio} Component={Portfolio} />} />
           <Route path="/transactions" element={<TransactionsGuard transactions={transactions} portfolio={portfolio} Component={Transactions} />} />
 
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<Settings meta={meta} readData={readData} transactions={transactions} />} />
         </Routes>
       </BaseLayout>
+      <Toaster />
     </ThemeProvider>
   )
 }

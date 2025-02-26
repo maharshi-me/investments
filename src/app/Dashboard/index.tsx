@@ -1,6 +1,8 @@
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 
+import { Bar, BarChart, CartesianGrid, XAxis, Cell } from "recharts"
+
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import {
   Select,
   SelectContent,
@@ -9,16 +11,16 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { Bar, BarChart, CartesianGrid, XAxis, Cell } from "recharts"
-
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import Cards from "./Cards"
+
 import { Transaction, Portfolio } from "@/types/investments"
+
+import Cards from "./Cards"
 
 const chartData = [
   { month: "Jan 2025", transactions: 186 },

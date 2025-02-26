@@ -1,10 +1,10 @@
 import { useState } from "react"
 
-import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
+import { DataTable } from "@/components/ui/data-table"
+import { formatCurrency, formatDate } from "@/utils/functions"
+
 import { Transaction } from "@/types/investments"
-import { formatCurrency } from "@/utils/functions/formatCurrency"
-import { formatDate } from "@/utils/functions/formatDate"
 
 export default function Transactions({ transactions }: { transactions: Transaction[] }) {
   const [fundFilter, setFundFilter] = useState("")

@@ -1,6 +1,4 @@
-import byDateAsc from '@/utils/functions/byDateAsc'
-import byTotalCostDesc from '@/utils/functions/byTotalCostDesc'
-import stringToColour from '@/utils/functions/stringToColour'
+import { byDateAsc, byTotalCostDesc, stringToColour } from '@/utils/functions'
 import { navHistoryDB } from '@/utils/db'
 import { Transaction, Portfolio } from '@/types/investments'
 

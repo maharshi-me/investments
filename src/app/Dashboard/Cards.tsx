@@ -1,10 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { formatCurrency } from "@/utils/functions/formatCurrency"
+import { formatCurrency, getSummary, renderProfit } from "@/utils/functions"
 import { TypographyH2 } from "@/components/ui/typography/h2"
-import getSummary from "@/utils/functions/getSummary"
-import { renderProfit } from "@/utils/functions/renderProfit"
+import { Portfolio } from "@/types/investments"
 
-export default function Cards({ portfolio }: { portfolio: any[] }) {
+export default function Cards({ portfolio }: { portfolio: Portfolio }) {
   const { totalValue, invested, allTimeProfit } = getSummary(portfolio)
 
   const cards = [

@@ -1,18 +1,14 @@
 import { useState } from "react"
 
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-
-import { DataTable } from "@/components/ui/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 
-import {  TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
-import { formatCurrency } from "@/utils/functions/formatCurrency"
-import { renderProfit } from "@/utils/functions/renderProfit"
-import getSummary from "@/utils/functions/getSummary"
-import { PortfolioRow } from "@/types/investments"
-import { Portfolio as PortfolioType } from "@/types/investments"
-import { formatDate } from "@/utils/functions/formatDate"
+import { DataTable } from "@/components/ui/data-table"
+import { formatCurrency, getSummary, renderProfit, formatDate } from "@/utils/functions"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { TableCell, TableBody, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table"
+
+import { Portfolio as PortfolioType, PortfolioRow } from "@/types/investments"
 
 const formatUnits = (units: number) => {
   return new Intl.NumberFormat('en-IN', {
