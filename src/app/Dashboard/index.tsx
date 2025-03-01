@@ -1,11 +1,9 @@
-import { Transaction, Portfolio } from "@/types/investments"
+import { Transaction, Portfolio } from "@/types/investments";
 
-import Cards from "./components/Cards"
-import TransactionCard from "./components/TransactionChart"
+import Cards from "./components/Cards";
+import TransactionCard from "./components/TransactionCard";
 
-// Update the Dashboard component to use both functions
-export default function Dashboard({ transactions, portfolio }: { transactions: Transaction[], portfolio: Portfolio }) {
-
+export default function Dashboard({ transactions, portfolio }: { transactions: Transaction[]; portfolio: Portfolio }) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <Cards portfolio={portfolio} />
@@ -13,5 +11,5 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
         <TransactionCard transactions={transactions} />
       </div>
     </div>
-  )
+  );
 }
