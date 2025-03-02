@@ -1,4 +1,5 @@
 import { Transaction } from "@/types/investments";
+import { formatDate } from "@/utils/functions";
 
 export function getLastTwelveMonthsData(transactions: Transaction[]): { name: string; value: number }[] {
   const today = new Date();
@@ -116,3 +117,34 @@ export function getAnnualData(transactions: Transaction[]): { name: string; valu
     })
     .sort((a, b) => Number(a.name) - Number(b.name));
 }
+
+export const getAllTimePerformance = (transactions: Transaction[]): unknown => {
+  if (transactions.length === 0) return [];
+
+  const sortedTransactions = transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  // Find first and last transaction dates
+  const firstDate = sortedTransactions[0].date;
+  const lastDate = new Date();
+
+  // Create array of all dates since first transaction
+  const allDatesObjects = [];
+  let transactionIndex = 0;
+  const currentHoldings: { [key: string]: { units: number; price: number; date: Date }[] } = {};
+
+  for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
+    while (transactionIndex < sortedTransactions.length && new Date(sortedTransactions[transactionIndex].date) <= d) {
+      transactionIndex++;
+    }
+
+    allDatesObjects.push({
+      dateObj: new Date(d),
+      name: formatDate(d),
+      valueOne: currentInvested,
+    });
+  }
+
+  // Group transactions by date
+
+  return allDatesObjects;
+};
