@@ -2,7 +2,7 @@ import { Transaction, Portfolio } from "@/types/investments";
 
 import Cards from "./components/Cards";
 import ChartCard from "./components/ChartCard";
-import { getLastTwelveMonthsData, getAnnualData, getAllMonthsData, getAllTimePerformance } from "./utils/chartData";
+import { getLastTwelveMonthsData, getAnnualData, getAllMonthsData, getAllTimePerformance, getOneYearPerformance, getOneMonthPerformance } from "./utils/chartData";
 import LineChartRenderer from "./components/LineChartRenderer";
 import BarChartRenderer from "./components/BarChartRenderer";
 
@@ -64,10 +64,10 @@ const barChartDataMap: {
 };
 
 const lineChartDataMap: {
-  [key: string]: (transactions: Transaction[]) => { name: string; valueOne: number; valueTwo: number }[];
+  [key: string]: (transactions: Transaction[]) => { name: string; valueOne: number; valueTwo?: number }[];
 } = {
-  one_month: getAllTimePerformance,
-  one_year: getAllTimePerformance,
+  one_month: getOneMonthPerformance,
+  one_year: getOneYearPerformance,
   all_time: getAllTimePerformance,
 };
 

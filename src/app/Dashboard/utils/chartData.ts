@@ -118,7 +118,7 @@ export function getAnnualData(transactions: Transaction[]): { name: string; valu
     .sort((a, b) => Number(a.name) - Number(b.name));
 }
 
-export const getAllTimePerformance = (transactions: Transaction[]): unknown => {
+export const getAllTimePerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
   if (transactions.length === 0) return [];
 
   const sortedTransactions = transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -130,21 +130,86 @@ export const getAllTimePerformance = (transactions: Transaction[]): unknown => {
   // Create array of all dates since first transaction
   const allDatesObjects = [];
   let transactionIndex = 0;
-  const currentHoldings: { [key: string]: { units: number; price: number; date: Date }[] } = {};
+  const currentHoldings: {[key: string]: { price: number, units: number, date: Date}[]} = {};
+
+  let currentInvested = 0;
 
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     while (transactionIndex < sortedTransactions.length && new Date(sortedTransactions[transactionIndex].date) <= d) {
+      const transaction = sortedTransactions[transactionIndex];
+
+      if (currentHoldings[transaction.isin]) {
+        if (transaction.type === 'Investment') {
+          currentHoldings[transaction.isin].push({
+            price: transaction.price * 10000,
+            units: transaction.units * 1000,
+            date: new Date(transaction.date),
+          })
+          currentInvested += transaction.price * transaction.units * 10000 * 1000
+        }
+        else {
+
+          let units = Math.round(transaction.units * 1000)
+
+          while (units > 0) {
+            if (currentHoldings[transaction.isin][0].units <= units) {
+              units -= currentHoldings[transaction.isin][0].units
+              currentInvested -= currentHoldings[transaction.isin][0].price * currentHoldings[transaction.isin][0].units
+              currentHoldings[transaction.isin][0].units = 0
+            }
+            else {
+              console.log('transaction', transaction, units * currentHoldings[transaction.isin][0].price)
+
+              currentHoldings[transaction.isin][0].units -= units
+              currentInvested -= units * currentHoldings[transaction.isin][0].price
+              units = 0
+            }
+            if (currentHoldings[transaction.isin][0].units === 0) {
+              currentHoldings[transaction.isin].shift()
+            }
+          }
+        }
+      }
+      else {
+        currentHoldings[transaction.isin] = [{
+          price: transaction.price * 10000,
+          units: transaction.units * 1000,
+          date: new Date(transaction.date)
+        }]
+        currentInvested += transaction.price * transaction.units * 10000 * 1000
+      }
+
       transactionIndex++;
     }
 
     allDatesObjects.push({
       dateObj: new Date(d),
       name: formatDate(d),
-      valueOne: currentInvested,
+      valueOne: currentInvested / 10000000,
     });
   }
 
-  // Group transactions by date
-
   return allDatesObjects;
 };
+
+export const getOneYearPerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
+  const allTimePerformance = getAllTimePerformance(transactions);
+
+  const lastYear = new Date();
+  lastYear.setFullYear(lastYear.getFullYear() - 1);
+
+  const oneYearPerformance = allTimePerformance.filter(atp => atp.dateObj >= lastYear)
+
+  return oneYearPerformance
+}
+
+export const getOneMonthPerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
+  const allTimePerformance = getAllTimePerformance(transactions);
+
+  const lastMonth = new Date();
+  lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+  const oneMonthPerformance = allTimePerformance.filter(atp => atp.dateObj >= lastMonth)
+
+  return oneMonthPerformance
+}

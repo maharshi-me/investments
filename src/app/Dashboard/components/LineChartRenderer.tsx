@@ -6,7 +6,7 @@ import { formatCurrency } from "@/utils/functions";
 interface SingleLineChartData {
   name: string;
   valueOne: number;
-  valueTwo: number;
+  valueTwo?: number;
 }
 
 interface LineChartRendererProps {
