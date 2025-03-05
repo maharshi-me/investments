@@ -28,15 +28,6 @@ const transactionsOptions: {
   },
 ];
 
-const lineChartDataMock = [
-  { name: "25 Aug 2024", valueOne: 186, valueTwo: 80 },
-  { name: "26 Aug 2024", valueOne: 305, valueTwo: 200 },
-  { name: "27 Aug 2024", valueOne: 237, valueTwo: 120 },
-  { name: "28 Aug 2024", valueOne: 73, valueTwo: 190 },
-  { name: "29 Aug 2024", valueOne: 209, valueTwo: 130 },
-  { name: "30 Aug 2024", valueOne: 214, valueTwo: 140 },
-];
-
 const performanceOptions: {
   label: string;
   value: string;
@@ -64,7 +55,7 @@ const barChartDataMap: {
 };
 
 const lineChartDataMap: {
-  [key: string]: (transactions: Transaction[]) => { name: string; valueOne: number; valueTwo?: number }[];
+  [key: string]: (transactions: Transaction[]) => Promise<{ name: string; valueOne: number; valueTwo?: number }[]>;
 } = {
   one_month: getOneMonthPerformance,
   one_year: getOneYearPerformance,
@@ -82,9 +73,12 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
           className="col-span-2"
           footer="Invested value vs Current value over time"
           title="Performance"
-          renderChart={({ selectedChart }) => {
-            const lineChartData = lineChartDataMap[selectedChart.value](transactions);
+          getData={async({selectedChart}) => {
+            const lineChartData = await lineChartDataMap[selectedChart.value](transactions);
 
+            return lineChartData
+          }}
+          renderChart={({ lineChartData }) => {
             return <LineChartRenderer chartData={lineChartData} labelOne="Invested" labelTwo="Current Value" />;
           }}
         />
@@ -92,10 +86,13 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
           chartOptions={transactionsOptions}
           footer={({ selectedChart }) => `Amount invested ${selectedChart.type}, net of withdrawals`}
           title="Transactions"
-          renderChart={({ selectedChart }) => {
+          getData={async({selectedChart}) => {
             const barChartData = barChartDataMap[selectedChart.value](transactions);
 
-            return <BarChartRenderer chartData={barChartData} label="Transactions" />;
+            return barChartData
+          }}
+          renderChart={({ lineChartData }) => {
+            return <BarChartRenderer chartData={lineChartData} label="Transactions" />;
           }}
         />
       </div>

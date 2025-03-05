@@ -1,5 +1,6 @@
 import { Transaction } from "@/types/investments";
 import { formatDate } from "@/utils/functions";
+import { navHistoryDB } from '@/utils/db'
 
 export function getLastTwelveMonthsData(transactions: Transaction[]): { name: string; value: number }[] {
   const today = new Date();
@@ -118,7 +119,7 @@ export function getAnnualData(transactions: Transaction[]): { name: string; valu
     .sort((a, b) => Number(a.name) - Number(b.name));
 }
 
-export const getAllTimePerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
+export const getAllTimePerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
   if (transactions.length === 0) return [];
 
   const sortedTransactions = transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -133,6 +134,10 @@ export const getAllTimePerformance = (transactions: Transaction[]): {dateObj: Da
   const currentHoldings: {[key: string]: { price: number, units: number, date: Date}[]} = {};
 
   let currentInvested = 0;
+
+  const navHistory = await navHistoryDB.getAll()
+
+  console.log('navHistory', navHistory)
 
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     while (transactionIndex < sortedTransactions.length && new Date(sortedTransactions[transactionIndex].date) <= d) {
@@ -192,8 +197,8 @@ export const getAllTimePerformance = (transactions: Transaction[]): {dateObj: Da
   return allDatesObjects;
 };
 
-export const getOneYearPerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
-  const allTimePerformance = getAllTimePerformance(transactions);
+export const getOneYearPerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
+  const allTimePerformance = await getAllTimePerformance(transactions);
 
   const lastYear = new Date();
   lastYear.setFullYear(lastYear.getFullYear() - 1);
@@ -203,8 +208,8 @@ export const getOneYearPerformance = (transactions: Transaction[]): {dateObj: Da
   return oneYearPerformance
 }
 
-export const getOneMonthPerformance = (transactions: Transaction[]): {dateObj: Date, name: string, valueOne: number}[] => {
-  const allTimePerformance = getAllTimePerformance(transactions);
+export const getOneMonthPerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
+  const allTimePerformance = await getAllTimePerformance(transactions);
 
   const lastMonth = new Date();
   lastMonth.setMonth(lastMonth.getMonth() - 1);

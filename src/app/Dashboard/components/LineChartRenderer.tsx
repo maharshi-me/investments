@@ -1,4 +1,4 @@
-import { CartesianGrid, XAxis, Line, LineChart } from "recharts";
+import { CartesianGrid, XAxis, Line, LineChart, YAxis } from "recharts";
 
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatCurrency } from "@/utils/functions";
@@ -32,6 +32,7 @@ export default function LineChartRenderer({ chartData, labelOne, labelTwo }: Lin
       <LineChart accessibilityLayer data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={10} />
+        <YAxis tickLine={false} axisLine={false} hide domain={['auto', 'auto']} />
         <ChartTooltip
           content={
             <ChartTooltipContent
