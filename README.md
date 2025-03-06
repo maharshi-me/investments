@@ -7,7 +7,7 @@ A modern web application for tracking and visualizing your investment portfolio 
 - **Real-time Price Updates**: Fetch latest NAV prices from mfapi.in with caching using Index DB
 - **Local Storage**: Securely store your transaction data locally
 - **Portfolio Analysis**:
-  - Performance tracking over multiple time periods (1M, 3M, 6M, 1Y, All-time)
+  - Performance tracking over multiple time periods (1M, 1Y, All-time)
   - Transaction history visualization
   - Profit/Loss tracking per scheme
 - **Responsive Design**
@@ -15,7 +15,7 @@ A modern web application for tracking and visualizing your investment portfolio 
   - Dark/Light theme support
   - Modern UI components
 
-![Dashboard Preview](https://github.com/maharshi-me/investments/assets/73870493/e43fee4f-d9dc-45f8-abfe-34a54d21a01b)
+![Dashboard Preview](https://maharshi-me.github.io/investments)
 
 ## Data Sources
 - **Transactions**: CAMS/KFintech Consolidated Account Statement (CAS)
