@@ -1,32 +1,24 @@
-import { Bar, BarChart, CartesianGrid, XAxis, Cell } from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, Cell } from "recharts";
 
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart'
-import { formatCurrency } from '@/utils/functions'
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { formatCurrency } from "@/utils/functions";
 
-interface SingleChartData {
-  name: string
-  value: number
+export interface BarChartData {
+  name: string;
+  value: number;
 }
 
 interface BarChartRendererProps {
-  chartData: SingleChartData[]
-  label: string
+  chartData: BarChartData[];
+  label: string;
 }
 
-export default function BarChartRenderer({
-  chartData,
-  label,
-}: BarChartRendererProps) {
+export default function BarChartRenderer({ chartData, label }: BarChartRendererProps) {
   const chartConfig = {
     value: {
       label,
     },
-  } satisfies ChartConfig
+  } satisfies ChartConfig;
 
   return (
     <ChartContainer config={chartConfig}>
@@ -37,9 +29,7 @@ export default function BarChartRenderer({
           tickLine={false}
           tickMargin={10}
           axisLine={false}
-          tickFormatter={(value) =>
-            value.length === 4 ? value : value.slice(0, 3)
-          }
+          tickFormatter={(value) => (value.length === 4 ? value : value.slice(0, 3))}
         />
         <ChartTooltip
           cursor={false}
@@ -49,9 +39,7 @@ export default function BarChartRenderer({
               formatter={(value, name) => (
                 <div className="flex w-[100%] gap-3 justify-between items-center text-xs text-muted-foreground">
                   {chartConfig[name as keyof typeof chartConfig]?.label || name}
-                  <div className="flex text-foreground font-medium">
-                    {formatCurrency(value as number)}
-                  </div>
+                  <div className="flex text-foreground font-medium">{formatCurrency(value as number)}</div>
                 </div>
               )}
             />
@@ -59,15 +47,10 @@ export default function BarChartRenderer({
         />
         <Bar dataKey="value" radius={8}>
           {chartData.map((item) => (
-            <Cell
-              key={item.name}
-              fill={
-                item.value > 0 ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-2))'
-              }
-            />
+            <Cell key={item.name} fill={item.value > 0 ? "hsl(var(--chart-1))" : "hsl(var(--chart-2))"} />
           ))}
         </Bar>
       </BarChart>
     </ChartContainer>
-  )
+  );
 }
