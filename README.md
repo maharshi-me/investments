@@ -15,11 +15,9 @@ A modern web application for tracking and visualizing your investment portfolio 
   - Dark/Light theme support
   - Modern UI components
 
-![Dashboard Preview](https://maharshi-me.github.io/investments)
-
 ## Data Sources
 - **Transactions**: CAMS/KFintech Consolidated Account Statement (CAS)
-- **NAV Prices**: mfapi.in (updates 1-2 times daily)
+- **NAV Prices**: mfapi.in (updates once a day)
 - **Storage**: Browser's LocalStorage for persistent data
 
 
@@ -43,7 +41,7 @@ A modern web application for tracking and visualizing your investment portfolio 
 
 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/maharshi-me/investments.git
 ```
 
 2. Install dependencies
