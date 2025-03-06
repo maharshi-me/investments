@@ -1,36 +1,130 @@
-# Investments Tracker
+# Investment Portfolio Tracker
 
-WEB UI for tracking CAMS and KFintech mutual fund investments made with React. It can read your mutual fund transactions from Consolidated Account Statement and stores them in localstorage. Prices will be fetched from https://www.mfapi.in/ and cached in localstorage. They re fetch once or twice a day.
+A modern web application for tracking and visualizing your investment portfolio performance.
 
-![image](https://github.com/maharshi-me/investments/assets/73870493/e43fee4f-d9dc-45f8-abfe-34a54d21a01b)
+## Key Features
+- **Automated Data Import**: Read and parse mutual fund transactions directly from Consolidated Account Statement (CAS) PDF
+- **Real-time Price Updates**: Fetch latest NAV prices from mfapi.in with caching using Index DB
+- **Local Storage**: Securely store your transaction data locally
+- **Portfolio Analysis**:
+  - Performance tracking over multiple time periods (1M, 3M, 6M, 1Y, All-time)
+  - Transaction history visualization
+  - Profit/Loss tracking per scheme
+- **Responsive Design**
+  - Adapts to desktop and mobile devices
+  - Dark/Light theme support
+  - Modern UI components
+
+![Dashboard Preview](https://github.com/maharshi-me/investments/assets/73870493/e43fee4f-d9dc-45f8-abfe-34a54d21a01b)
+
+## Data Sources
+- **Transactions**: CAMS/KFintech Consolidated Account Statement (CAS)
+- **NAV Prices**: mfapi.in (updates 1-2 times daily)
+- **Storage**: Browser's LocalStorage for persistent data
 
 
-# Features
-- Performance chart over time (All, 1M, 3M, 6M 1Y)
-- Transactions bar graph (Anually, 12M, All)
-- Allocation by Scheme Type in Pie chart with filtering
-- Allocation by Scheme Name in Pie chart with filtering
-- Data Table with you current holdings, Total profit and Total value
-- Similar to Google Finance, you can get current value of each holding in portflio with profit details if you open the collapsible row
-- Data table of all transaction you have made in a nice format
+## Tech Stack
 
-## Initial Setup
+- **Frontend Framework**: React
+- **Styling**: Tailwind CSS
+- **Charts**: Recharts
+- **UI Components**: Shadcn/ui
+- **Type Safety**: TypeScript
 
-- Install the dependencies <br>
-Run `npm install` in project path
 
-- Download CAS pdf from here - https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement
+## Getting Started
 
-- Add PDF file in `public` folder
-- Create `.env ` file in project path and add these two variables
-  ```
-  REACT_APP_PDF_PATH='filename.pdf'
-  REACT_APP_PDF_PASSWORD='passwordForPDF'
-  ```
-- In the project directory, you can run:<br>
-  `npm start`
-- Open [http://localhost:3005](http://localhost:3005) to view it in your browser.
-- Go to "Cache" tab. Scheme Codes shuould automatically populate from API. If not, you can select them from dropdown or fill them manually.
-  - You can get scheme codes from here - https://www.mfapi.in/
-- Select Scheme Type for each fund (Equity or Debt)
-- Once the above setup is done, you only need to replace the CAS pdf for syncing latest transactions.
+### Prerequisites
+
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone <repository-url>
+```
+
+2. Install dependencies
+```bash
+cd investments
+npm install
+```
+
+3. Start the development server
+```bash
+npm run dev
+```
+
+## Usage
+
+### Dashboard
+
+The dashboard provides a comprehensive view of your investment portfolio:
+
+1. **Portfolio Cards**
+   - Total Investment Value
+   - Current Portfolio Value
+   - Total Returns
+   - Performance Metrics
+
+2. **Performance Chart**
+   - Compare invested value vs current value
+   - Time period selection:
+     - 1 Month
+     - 1 Year
+     - All Time
+
+3. **Capital Flow Chart**
+   - Track investment inflows and outflows
+   - View options:
+     - Last 12 Months
+     - Annually
+     - All Time
+
+
+## Customization
+
+### Theme
+
+The application supports both light and dark themes. Colors can be customized in `src/index.css`:
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  // ...other color variables
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  // ...other dark theme colors
+}
+```
+
+### Charts
+
+Chart colors and styling can be modified through the `chartConfig` object:
+
+```typescript
+const chartConfig = {
+  transactions: {
+    label: "Capital Flow",
+    color: "hsl(var(--chart-1))"
+  }
+};
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
