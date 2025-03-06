@@ -1,6 +1,8 @@
 import { Transaction } from "@/types/investments";
 import { formatDate } from "@/utils/functions";
 import { navHistoryDB } from '@/utils/db'
+import { LineChartData } from "../components/LineChartRenderer";
+import { format } from 'date-fns';
 
 export function getLastTwelveMonthsData(transactions: Transaction[]): { name: string; value: number }[] {
   const today = new Date();
@@ -119,7 +121,7 @@ export function getAnnualData(transactions: Transaction[]): { name: string; valu
     .sort((a, b) => Number(a.name) - Number(b.name));
 }
 
-export const getAllTimePerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
+export const getAllTimePerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; valueTwo: number }[]> => {
   if (transactions.length === 0) return [];
 
   const sortedTransactions = transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -131,21 +133,31 @@ export const getAllTimePerformance = async (transactions: Transaction[]): Promis
   // Create array of all dates since first transaction
   const allDatesObjects = [];
   let transactionIndex = 0;
-  const currentHoldings: {[key: string]: { price: number, units: number, date: Date}[]} = {};
+  const currentHoldings: {[key: number]: { price: number, units: number, date: Date}[]} = {};
+  const currentHoldingUnits: {[key: number]: number} = {};
+  const currentHoldingNav: {[key: number]: number} = {};
 
   let currentInvested = 0;
 
   const navHistory = await navHistoryDB.getAll()
 
-  console.log('navHistory', navHistory)
+  const navMap: {[key: number]: unknown} = {}
+  navHistory.forEach(nav => {
+    navMap[nav.data.meta.scheme_code] = nav.data.data.reduce((acc, navData) => {
+      acc[navData.date] = navData.nav
+      return acc
+    }
+    , {})
+  })
 
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     while (transactionIndex < sortedTransactions.length && new Date(sortedTransactions[transactionIndex].date) <= d) {
       const transaction = sortedTransactions[transactionIndex];
+      const schemeCode = transaction.matchingScheme.schemeCode
 
-      if (currentHoldings[transaction.isin]) {
+      if (currentHoldings[schemeCode]) {
         if (transaction.type === 'Investment') {
-          currentHoldings[transaction.isin].push({
+          currentHoldings[schemeCode].push({
             price: transaction.price * 10000,
             units: transaction.units * 1000,
             date: new Date(transaction.date),
@@ -153,30 +165,27 @@ export const getAllTimePerformance = async (transactions: Transaction[]): Promis
           currentInvested += transaction.price * transaction.units * 10000 * 1000
         }
         else {
-
           let units = Math.round(transaction.units * 1000)
 
           while (units > 0) {
-            if (currentHoldings[transaction.isin][0].units <= units) {
-              units -= currentHoldings[transaction.isin][0].units
-              currentInvested -= currentHoldings[transaction.isin][0].price * currentHoldings[transaction.isin][0].units
-              currentHoldings[transaction.isin][0].units = 0
+            if (currentHoldings[schemeCode][0].units <= units) {
+              units -= currentHoldings[schemeCode][0].units
+              currentInvested -= currentHoldings[schemeCode][0].price * currentHoldings[schemeCode][0].units
+              currentHoldings[schemeCode][0].units = 0
             }
             else {
-              console.log('transaction', transaction, units * currentHoldings[transaction.isin][0].price)
-
-              currentHoldings[transaction.isin][0].units -= units
-              currentInvested -= units * currentHoldings[transaction.isin][0].price
+              currentHoldings[schemeCode][0].units -= units
+              currentInvested -= units * currentHoldings[schemeCode][0].price
               units = 0
             }
-            if (currentHoldings[transaction.isin][0].units === 0) {
-              currentHoldings[transaction.isin].shift()
+            if (currentHoldings[schemeCode][0].units === 0) {
+              currentHoldings[schemeCode].shift()
             }
           }
         }
       }
       else {
-        currentHoldings[transaction.isin] = [{
+        currentHoldings[schemeCode] = [{
           price: transaction.price * 10000,
           units: transaction.units * 1000,
           date: new Date(transaction.date)
@@ -187,17 +196,36 @@ export const getAllTimePerformance = async (transactions: Transaction[]): Promis
       transactionIndex++;
     }
 
+    let currentValue = 0
+
+    Object.keys(currentHoldings).forEach(schemeCode => {
+      const holdingUnits = currentHoldings[Number(schemeCode)].reduce((acc, holding) => acc + holding.units, 0)
+      currentHoldingUnits[Number(schemeCode)] = holdingUnits / 1000
+    })
+
+    Object.keys(currentHoldings).forEach(schemeCode => {
+      const nav = navMap[schemeCode][format(d, 'dd-MM-yyyy')]
+      if (nav) {
+        currentHoldingNav[schemeCode] = nav
+      }
+    })
+
+    Object.keys(currentHoldingUnits).forEach(schemeCode => {
+      currentValue += currentHoldingNav[schemeCode] * currentHoldingUnits[schemeCode]
+    })
+
     allDatesObjects.push({
       dateObj: new Date(d),
       name: formatDate(d),
       valueOne: currentInvested / 10000000,
+      valueTwo: currentValue,
     });
   }
 
   return allDatesObjects;
 };
 
-export const getOneYearPerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
+export const getOneYearPerformance = async (transactions: Transaction[]): Promise<LineChartData[]> => {
   const allTimePerformance = await getAllTimePerformance(transactions);
 
   const lastYear = new Date();
@@ -208,7 +236,7 @@ export const getOneYearPerformance = async (transactions: Transaction[]): Promis
   return oneYearPerformance
 }
 
-export const getOneMonthPerformance = async (transactions: Transaction[]): Promise<{ dateObj: Date; name: string; valueOne: number; }[]> => {
+export const getOneMonthPerformance = async (transactions: Transaction[]): Promise<LineChartData[]> => {
   const allTimePerformance = await getAllTimePerformance(transactions);
 
   const lastMonth = new Date();

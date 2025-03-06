@@ -2,44 +2,32 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { useEffect, useState } from "react";
 
 import { ChartTypeSelect } from "./ChartTypeSelect";
-
 interface ChartOption {
   label: string;
   value: string;
   type?: string;
 }
 
-interface BarChartData {
-  name: string;
-  value: number;
+interface ChartCardProps<T> {
+  title: string;
+  footer: string | ((props: { selectedChart: ChartOption }) => string);
+  chartOptions: ChartOption[];
+  className?: string;
+  getData: (props: { selectedChart: ChartOption }) => Promise<T[]>;
+  renderChart: (props: { data: T[] }) => React.ReactNode;
 }
 
-interface LineChartData {
-  name: string;
-  valueOne: number;
-  valueTwo?: number;
-}
-
-type ChartData = BarChartData[] | LineChartData[];
-
-export default function ChartCard({
+export default function ChartCard<T>({
   className,
   title,
   chartOptions,
   footer,
   renderChart,
   getData,
-}: {
-  className?: string;
-  title: string;
-  chartOptions: ChartOption[];
-  footer: (({ selectedChart }: { selectedChart: ChartOption }) => string) | string;
-  renderChart: ({ lineChartData }: { lineChartData: ChartData }) => React.ReactNode;
-  getData: ({ selectedChart }: { selectedChart: ChartOption }) => Promise<ChartData>;
-}) {
+}: ChartCardProps<T>) {
   const [selectedChartOption, setSelectedChartOption] = useState<string>(chartOptions[0].value);
   const selectedChart = chartOptions.find((option) => option.value === selectedChartOption) || chartOptions[0];
-  const [ data, setData ] = useState<ChartData>([]);
+  const [ data, setData ] = useState<T[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -55,7 +43,7 @@ export default function ChartCard({
         <CardTitle>{title}</CardTitle>
         <ChartTypeSelect value={selectedChartOption} onValueChange={setSelectedChartOption} options={chartOptions} />
       </CardHeader>
-      <CardContent>{renderChart({ lineChartData: data })}</CardContent>
+      <CardContent>{renderChart({ data })}</CardContent>
       <CardFooter className="text-sm">
         <div className="text-muted-foreground">{typeof footer === "function" ? footer({ selectedChart }) : footer}</div>
       </CardFooter>

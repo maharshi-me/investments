@@ -3,13 +3,13 @@ import { Bar, BarChart, CartesianGrid, XAxis, Cell } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatCurrency } from "@/utils/functions";
 
-// interface SingleBarChartData
+export interface BarChartData {
+  name: string;
+  value: number;
+}
 
 interface BarChartRendererProps {
-  chartData: {
-    name: string;
-    value: number;
-  }[];
+  chartData: BarChartData[];
   label: string;
 }
 

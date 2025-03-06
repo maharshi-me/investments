@@ -3,14 +3,14 @@ import { CartesianGrid, XAxis, Line, LineChart, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { formatCurrency } from "@/utils/functions";
 
-interface SingleLineChartData {
+export interface LineChartData {
   name: string;
   valueOne: number;
-  valueTwo?: number;
+  valueTwo: number;
 }
 
 interface LineChartRendererProps {
-  chartData: SingleLineChartData[];
+  chartData: LineChartData[];
   labelOne: string;
   labelTwo: string;
 }
@@ -55,8 +55,8 @@ export default function LineChartRenderer({ chartData, labelOne, labelTwo }: Lin
             />
           }
         />
-        <Line dataKey="valueOne" type="monotone" stroke="var(--color-valueOne)" strokeWidth={2} dot={false} />
-        <Line dataKey="valueTwo" type="monotone" stroke="var(--color-valueTwo)" strokeWidth={2} dot={false} />
+        <Line dataKey="valueOne" type="monotone" stroke="var(--color-valueOne)" strokeWidth={2} dot={false} animationDuration={400} />
+        <Line dataKey="valueTwo" type="monotone" stroke="var(--color-valueTwo)" strokeWidth={2} dot={false} animationDuration={400} />
       </LineChart>
     </ChartContainer>
   );

@@ -55,7 +55,7 @@ const barChartDataMap: {
 };
 
 const lineChartDataMap: {
-  [key: string]: (transactions: Transaction[]) => Promise<{ name: string; valueOne: number; valueTwo?: number }[]>;
+  [key: string]: (transactions: Transaction[]) => Promise<{ name: string; valueOne: number; valueTwo: number }[]>;
 } = {
   one_month: getOneMonthPerformance,
   one_year: getOneYearPerformance,
@@ -63,7 +63,7 @@ const lineChartDataMap: {
 };
 
 export default function Dashboard({ transactions, portfolio }: { transactions: Transaction[]; portfolio: Portfolio }) {
-  console.log("getAllTimePerformance", getAllTimePerformance(transactions));
+
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
       <Cards portfolio={portfolio} />
@@ -73,13 +73,13 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
           className="col-span-2"
           footer="Invested value vs Current value over time"
           title="Performance"
-          getData={async({selectedChart}) => {
+          getData={async ({selectedChart}) => {
             const lineChartData = await lineChartDataMap[selectedChart.value](transactions);
 
-            return lineChartData
+            return lineChartData;
           }}
-          renderChart={({ lineChartData }) => {
-            return <LineChartRenderer chartData={lineChartData} labelOne="Invested" labelTwo="Current Value" />;
+          renderChart={({ data }) => {
+            return <LineChartRenderer chartData={data} labelOne="Invested" labelTwo="Current Value" />;
           }}
         />
         <ChartCard
@@ -91,8 +91,8 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
 
             return barChartData
           }}
-          renderChart={({ lineChartData }) => {
-            return <BarChartRenderer chartData={lineChartData} label="Transactions" />;
+          renderChart={({ data }) => {
+            return <BarChartRenderer chartData={data} label="Transactions" />;
           }}
         />
       </div>
