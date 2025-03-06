@@ -1,6 +1,6 @@
-# Investment Portfolio Tracker
+# Mutual Funds Investments Tracker
 
-A modern web application for tracking and visualizing your investment portfolio performance.
+A modern web application for tracking and visualizing your mutual funds investment portfolio performance.
 
 ## Key Features
 - **Automated Data Import**: Read and parse mutual fund transactions directly from Consolidated Account Statement (CAS) PDF
@@ -122,7 +122,3 @@ const chartConfig = {
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
