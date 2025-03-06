@@ -9,7 +9,9 @@ import { Transaction } from "@/types/investments"
 export default function Transactions({ transactions }: { transactions: Transaction[] }) {
   const [fundFilter, setFundFilter] = useState("")
 
-  const filteredTransactions = transactions.filter(transaction =>
+  const sortedTransactions = transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+  const filteredTransactions = sortedTransactions.filter(transaction =>
     transaction.mfName.toLowerCase().includes(fundFilter.toLowerCase())
   )
 
