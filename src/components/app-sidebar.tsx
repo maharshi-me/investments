@@ -3,15 +3,21 @@ import {
   ReceiptText ,
   LayoutList,
   Settings ,
-  LayoutDashboard ,
+  LayoutDashboard, 
+  Github,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import {
   Sidebar,
   SidebarContent,
-  SidebarRail,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Link } from "react-router-dom"
 
 // This is sample data.
 const data = {
@@ -45,7 +51,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarRail />
+      <SidebarFooter className="p-0">
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link to="https://github.com/maharshi-me/investments">
+                <Github />
+                <span>View code on Github</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarFooter>
+
     </Sidebar>
   )
 }
