@@ -2,17 +2,23 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 
 import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist'
-import { InfoIcon, Trash2Icon, Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 import { TextItem } from "pdfjs-dist/types/src/display/api"
+import { Trash2Icon, Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { fetchNavHistory } from "@/utils/nav-fetcher"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { textUtils, getFilteredText, getJsonFromTxt } from "@/utils/cas-parser"
 import { ToastAction } from "@/components/ui/toast"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { TypographySmall } from "@/components/ui/typography-small"
 import { useTheme } from "@/components/theme-provider"
 import { useToast } from "@/hooks/use-toast"
@@ -165,146 +171,148 @@ export default function Settings({ meta, transactions, readData }: { meta?: Meta
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <div className="min-h-[100vh] flex-1 rounded-xl md:min-h-min">
-        <TypographySmall text="Theme" />
-        <div className="p-4 pt-0" />
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="dark-mode">Light</Label>
-          <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={checked => setTheme(checked ? "dark" : "light")} />
-          <Label htmlFor="dark-mode">Dark</Label>
-        </div>
-
-        <div className="mt-8">
-          <div className="flex items-center justify-between max-w-sm">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <div className="flex items-center gap-1">
-                    <TypographySmall text="CAS Import" />
-                    <InfoIcon className="h-3 w-3" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-sm p-4">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-sm font-medium">How to download CAS PDF:</p>
-                    <ol className="text-sm list-decimal ml-4 space-y-1">
-                      <li>Visit{" "}
-                        <a
-                          href="https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          CAMS Online
-                        </a>
-                      </li>
-                      <li>Select "Detailed" statement type</li>
-                      <li>Set "From Date" to when you started investing</li>
-                      <li>Set "To Date" as today</li>
-                      <li>Choose "With Zero Balance Folios" in Folio Listing Type</li>
-                      <li>Enter your email and create a password</li>
-                      <li>Submit the form</li>
-                    </ol>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            {transactions.length ? (
-              <TypographySmall
-                text={`Last imported: ${transactions.length} transactions`}
-                className="text-muted-foreground"
-              />
-            ) : (
-              <></>
-            )}
-          </div>
-          <div className="p-4 pt-0" />
-          <div className="flex flex-col gap-4">
-            {meta && (
-              <div className="rounded-lg border p-4 max-w-sm">
-                <div className="flex justify-between items-start">
-                  <div className="flex flex-col gap-2">
-                    <TypographySmall text="Current Data" />
-                    <div className="text-sm text-muted-foreground">
-                      <div>From: {new Date(meta.from).toLocaleDateString()}</div>
-                      <div>To: {new Date(meta.to).toLocaleDateString()}</div>
-                      <div>Exported: {new Date(meta.exportedAt).toLocaleString()}</div>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleClearData}
-                    className="h-8 w-8"
-                  >
-                    <Trash2Icon className="h-4 w-4" />
-                  </Button>
-                </div>
+    <div className="flex justify-center">
+      <div className="flex flex-col gap-4 items-center w-fit">
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle>Theme</CardTitle>
+            <CardDescription>
+              Choose between light and dark mode.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="dark-mode">Light</Label>
+                <Switch id="dark-mode" checked={theme === 'dark'} onCheckedChange={checked => setTheme(checked ? "dark" : "light")} />
+                <Label htmlFor="dark-mode">Dark</Label>
               </div>
-            )}
-            <Input
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={handleFileChange}
-              className="max-w-sm"
-              disabled={isProcessing}
-            />
-            {selectedFile && (
-              <>
-                {isPasswordProtected && (
-                  <div className="flex flex-col gap-2">
-                    <Label htmlFor="pdf-password">PDF Password</Label>
-                    <div className="relative max-w-sm">
-                      <Input
-                        id="pdf-password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter PDF password"
-                        className="pr-10"
-                        disabled={isProcessing}
-                      />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 max-w-sm">
+              CAS Import
+            </CardTitle>
+
+            <CardDescription className="max-w-sm">
+              <div className="flex flex-col gap-2">
+                <p className="text-sm font-medium">How to download CAS PDF:</p>
+                <ol className="text-sm list-decimal ml-4 space-y-1">
+                  <li>Visit{" "}
+                    <a
+                      href="https://www.camsonline.com/Investors/Statements/Consolidated-Account-Statement"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      CAMS Online
+                    </a>
+                    {" "}website
+                  </li>
+                  <li>Select "Detailed" statement type</li>
+                  <li>Set "From Date" to before you started investing</li>
+                  <li>Set "To Date" as today</li>
+                  <li>Choose "With Zero Balance Folios" in Folio Listing Type</li>
+                  <li>Enter your email and create a password</li>
+                  <li>Submit the form</li>
+                </ol>
+              </div>
+            </CardDescription>
+
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
+                {meta && (
+                  <div className="rounded-lg border p-4 max-w-sm">
+                    <div className="flex justify-between items-start">
+                      <div className="flex flex-col gap-2">
+                        <TypographySmall text="Current Data" />
+                        <div className="text-sm text-muted-foreground">
+                          <div>From: {new Date(meta.from).toLocaleDateString()}</div>
+                          <div>To: {new Date(meta.to).toLocaleDateString()}</div>
+                          <div>Exported: {new Date(meta.exportedAt).toLocaleString()}</div>
+                          <div>Transactions: {transactions.length}</div>
+                        </div>
+                      </div>
                       <Button
-                        type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                        disabled={isProcessing}
+                        onClick={handleClearData}
+                        className="h-8 w-8"
                       >
-                        {showPassword ? (
-                          <EyeOffIcon className="h-4 w-4" />
-                        ) : (
-                          <EyeIcon className="h-4 w-4" />
-                        )}
+                        <Trash2Icon className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 )}
-                {error && (
-                  <span className="text-sm text-red-500">{error}</span>
-                )}
-                <Button
-                  onClick={handleViewFile}
+                <Input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleFileChange}
                   className="max-w-sm"
-                  disabled={isProcessing || (isPasswordProtected && !password)}
-                >
-                  {isProcessing ? (
-                    <div className="flex items-center gap-2">
-                      <Loader2Icon className="h-4 w-4 animate-spin" />
-                      Processing...
-                    </div>
-                  ) : transactions.length ? (
-                    'Update Data'
-                  ) : (
-                    'Import'
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+                  disabled={isProcessing}
+                />
+                {selectedFile && (
+                  <>
+                    {isPasswordProtected && (
+                      <div className="flex flex-col gap-2">
+                        <Label htmlFor="pdf-password">PDF Password</Label>
+                        <div className="relative max-w-sm">
+                          <Input
+                            id="pdf-password"
+                            type={showPassword ? "text" : "password"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Enter PDF password"
+                            className="pr-10"
+                            disabled={isProcessing}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                            onClick={() => setShowPassword(!showPassword)}
+                            disabled={isProcessing}
+                          >
+                            {showPassword ? (
+                              <EyeOffIcon className="h-4 w-4" />
+                            ) : (
+                              <EyeIcon className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    {error && (
+                      <span className="text-sm text-red-500">{error}</span>
+                    )}
+                    <Button
+                      onClick={handleViewFile}
+                      className="max-w-sm"
+                      disabled={isProcessing || (isPasswordProtected && !password)}
+                    >
+                      {isProcessing ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                          Processing...
+                        </div>
+                      ) : transactions.length ? (
+                        'Update Data'
+                      ) : (
+                        'Import'
+                      )}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

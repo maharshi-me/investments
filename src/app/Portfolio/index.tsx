@@ -94,7 +94,7 @@ const withoutZeroUnitsColumns: ColumnDef<PortfolioRow>[] = [
 
 export default function Portfolio({ portfolio }: { portfolio: PortfolioType }) {
   const [fundFilter, setFundFilter] = useState("");
-  const [showZeroUnits, setShowZeroUnits] = useState(true);
+  const [showZeroUnits, setShowZeroUnits] = useState(false);
 
   const { totalValue, invested, currentProfit, realisedProfit } = getSummary(portfolio);
 
