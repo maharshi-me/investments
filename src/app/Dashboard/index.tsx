@@ -79,7 +79,7 @@ export default function Dashboard({ transactions, portfolio }: { transactions: T
             return lineChartData;
           }}
           renderChart={({ data }) => {
-            return <LineChartRenderer chartData={data} labelOne="Invested" labelTwo="Current Value" />;
+            return <LineChartRenderer chartData={data} labelOne="Current Value" labelTwo="Invested" />;
           }}
         />
         <ChartCard
