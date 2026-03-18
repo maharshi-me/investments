@@ -19,11 +19,11 @@ export default function LineChartRenderer({ chartData, labelOne, labelTwo }: Lin
   const chartConfig = {
     valueOne: {
       label: labelOne,
-      color: "hsl(var(--chart-1))",
+      color: "hsl(var(--chart-4))",
     },
     valueTwo: {
       label: labelTwo,
-      color: "hsl(var(--chart-4))",
+      color: "hsl(var(--chart-1))",
     },
   } satisfies ChartConfig;
 

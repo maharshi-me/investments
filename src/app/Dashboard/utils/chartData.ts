@@ -217,8 +217,8 @@ export const getAllTimePerformance = async (transactions: Transaction[]): Promis
     allDatesObjects.push({
       dateObj: new Date(d),
       name: formatDate(d),
-      valueOne: currentInvested / 10000000,
-      valueTwo: currentValue,
+      valueTwo: currentInvested / 10000000,
+      valueOne: currentValue,
     });
   }
 

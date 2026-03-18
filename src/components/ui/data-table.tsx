@@ -8,7 +8,7 @@ import {
   getFilteredRowModel,
   ExpandedState,
   getExpandedRowModel,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -17,31 +17,36 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableFooter
-} from "@/components/ui/table"
+  TableFooter,
+} from "@/components/ui/table";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { useState } from "react"
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { EyeIcon } from "lucide-react"
-import { ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EyeIcon } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  searchValue: string
-  setSearchValue: (value: string) => void
-  renderSubComponent?: (props: { rowData: TData }) => React.ReactElement
-  showCollapsableRows?: boolean
-  showColumnHiding?: boolean
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  searchValue?: string;
+  setSearchValue?: (value: string) => void;
+  renderSubComponent?: (props: { rowData: TData }) => React.ReactElement;
+  showCollapsableRows?: boolean;
+  showColumnHiding?: boolean;
   footer?: {
-    value: string | number
-    colSpan: number
-    align?: "right" | "left"
-    render?: () => React.ReactNode
-  }[]
+    value: string | number;
+    colSpan: number;
+    align?: "right" | "left";
+    render?: () => React.ReactNode;
+  }[];
 }
 
 export function DataTable<TData, TValue>({
@@ -54,28 +59,30 @@ export function DataTable<TData, TValue>({
   showColumnHiding,
   footer,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-  const [columnVisibility, setColumnVisibility] = useState({})
-  const [expanded, setExpanded] = useState<ExpandedState>({})
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnVisibility, setColumnVisibility] = useState({});
+  const [expanded, setExpanded] = useState<ExpandedState>({});
 
   const table = useReactTable({
     data,
-    columns: showCollapsableRows ? [
-      {
-        id: 'expander',
-        header: () => null,
-        cell: ({ row }) => (
-          <button
-            onClick={() => row.toggleExpanded()}
-            className={`p-1 transition-transform ${row.getIsExpanded() ? 'rotate-90' : ''}`}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        ),
-        enableHiding: false,
-      },
-      ...columns
-    ] : columns,
+    columns: showCollapsableRows
+      ? [
+          {
+            id: "expander",
+            header: () => null,
+            cell: ({ row }) => (
+              <button
+                onClick={() => row.toggleExpanded()}
+                className={`p-1 transition-transform ${row.getIsExpanded() ? "rotate-90" : ""}`}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            ),
+            enableHiding: false,
+          },
+          ...columns,
+        ]
+      : columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -88,52 +95,54 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       expanded,
     },
-  })
+  });
 
   return (
     <div>
-      <div className="flex items-center py-4">
-        <div className="relative max-w-sm">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Filter by fund name"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="pl-8"
-          />
+      {searchValue !== undefined && setSearchValue && (
+        <div className="flex items-center py-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Filter by fund name"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <DropdownMenu>
+            {showColumnHiding && (
+              <>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="ml-auto">
+                    <EyeIcon className="mr-2 h-4 w-4" />
+                    Columns
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </>
+            )}
+          </DropdownMenu>
         </div>
-        <DropdownMenu>
-          {showColumnHiding && (
-            <>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  <EyeIcon className="mr-2 h-4 w-4" />
-                  Columns
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter(
-                    (column) => column.getCanHide()
-                  )
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    )
-                  })}
-              </DropdownMenuContent>
-            </>
-          )}
-        </DropdownMenu>
-      </div>
+      )}
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -145,7 +154,7 @@ export function DataTable<TData, TValue>({
                       ? null
                       : flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                   </TableHead>
                 ))}
@@ -164,18 +173,20 @@ export function DataTable<TData, TValue>({
                       <TableCell key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
                   </TableRow>
-                  {row.getIsExpanded() && renderSubComponent && showCollapsableRows && (
-                    <TableRow>
-                      <TableCell colSpan={row.getVisibleCells().length}>
-                        {renderSubComponent({ rowData: row.original })}
-                      </TableCell>
-                    </TableRow>
-                  )}
+                  {row.getIsExpanded() &&
+                    renderSubComponent &&
+                    showCollapsableRows && (
+                      <TableRow>
+                        <TableCell colSpan={row.getVisibleCells().length}>
+                          {renderSubComponent({ rowData: row.original })}
+                        </TableCell>
+                      </TableRow>
+                    )}
                 </>
               ))
             ) : (
@@ -205,5 +216,5 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
     </div>
-  )
+  );
 }
