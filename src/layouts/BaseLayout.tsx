@@ -1,7 +1,16 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { useLocation } from "react-router-dom";
 import { Loader2Icon } from "lucide-react";
 import { setPageTitle } from "@/utils/page-title";
@@ -23,6 +32,8 @@ export default function BaseLayout({
         return "Settings";
       case "/transactions":
         return "Transactions";
+      case "/tax-analysis":
+        return "Tax Analysis";
       case "/portfolio":
         return "Portfolio";
       default:
@@ -45,7 +56,9 @@ export default function BaseLayout({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>{getPageTitle(location.pathname)}</BreadcrumbPage>
+                  <BreadcrumbPage>
+                    {getPageTitle(location.pathname)}
+                  </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -55,7 +68,9 @@ export default function BaseLayout({
           <div className="flex h-screen items-center justify-center">
             <div className="flex flex-col items-center gap-2">
               <Loader2Icon className="h-8 w-8 animate-spin" />
-              <p className="text-sm text-muted-foreground">Loading NAV data...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading NAV data...
+              </p>
             </div>
           </div>
         ) : (

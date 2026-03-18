@@ -1,13 +1,14 @@
-import * as React from "react"
+import * as React from "react";
 import {
-  ReceiptText ,
+  ReceiptText,
   LayoutList,
-  Settings ,
-  LayoutDashboard, 
+  Settings,
+  LayoutDashboard,
   Github,
-} from "lucide-react"
+  IndianRupee,
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
+import { NavMain } from "@/components/nav-main";
 import {
   Sidebar,
   SidebarContent,
@@ -16,8 +17,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { Link } from "react-router-dom"
+} from "@/components/ui/sidebar";
+import { Link } from "react-router-dom";
 
 // This is sample data.
 const data = {
@@ -25,25 +26,30 @@ const data = {
     {
       title: "Dashboard",
       url: "/",
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
     },
     {
       title: "Portfolio",
       url: "/portfolio",
-      icon: LayoutList
+      icon: LayoutList,
     },
     {
       title: "Transactions",
       url: "/transactions",
-      icon: ReceiptText
+      icon: ReceiptText,
+    },
+    {
+      title: "Tax Analysis",
+      url: "/tax-analysis",
+      icon: IndianRupee,
     },
     {
       title: "Settings",
       url: "/settings",
-      icon: Settings
-    }
+      icon: Settings,
+    },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -55,17 +61,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link to="https://github.com/maharshi-me/investments">
-                <Github />
-                <span>View code on Github</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link to="https://github.com/maharshi-me/investments">
+                  <Github />
+                  <span>View code on Github</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
       </SidebarFooter>
-
     </Sidebar>
-  )
+  );
 }
